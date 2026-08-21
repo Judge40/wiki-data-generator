@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title> {{ name }}</title>
+</head>
+
+<body>
+  <div id="pagecontent">
+    <h1 class="title">
+      <span>{{ name }}</span>
+    </h1>
+
+    <div class="managebox" id="monsterinfo">
+      <div class="name">{{ name }}</div>
+
+      <div id="overview">
+        <span id="hp">{{ hp }} hp</span>
+        <span id="mp">{{ mp }} mp</span>
+      </div>
+
+      <div class="stat">
+        <span class="stat-req">Str : {{ str }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-req">Intel: {{ intel }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-req">Defensive Dex: {{ defensive_dex }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-req">Offensive Dex: {{ offensive_dex }}</span>
+      </div>
+
+      <div class="stat">
+        <span class="stat-req">Moral: {{ moral }}</span>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
