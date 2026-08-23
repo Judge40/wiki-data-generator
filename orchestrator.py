@@ -38,7 +38,16 @@ def scrape(
 
     log.debug("Found %s %s", fetch_type, fetch_id)
 
-    stats = parse_stats(fetch_id, fetch_type, html)
+    try:
+        stats = parse_stats(fetch_id, fetch_type, html)
+    except RuntimeError as e:
+        if fetch_type == "monster" and fetch_id in config.IGNORED_MONSTER_IDS:
+            log.info(
+                "Skipping monster %s due to known obfuscation/redaction: %s",
+                fetch_id,
+                e,
+            )
+            return None
 
     if fetch_type == "monster":
         save_monster(stats)

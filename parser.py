@@ -32,7 +32,7 @@ def _parse_item_stats(id: int, soup: BeautifulSoup) -> dict:
 
     name_el = soup.select_one(NAME_SELECTOR)
     if name_el is None:
-        raise RuntimeError("Item page is missing required field: name")
+        raise RuntimeError(f"Item page {id} is missing required field: name")
 
     itemdata_elements = soup.select(f"{ITEM_INFO_SELECTOR} .itemdata")
     item_type = (
@@ -45,13 +45,13 @@ def _parse_item_stats(id: int, soup: BeautifulSoup) -> dict:
         else None
     )
     if match is None:
-        raise RuntimeError(f"Unrecognised item race/type text: {item_type!r}")
+        raise RuntimeError(f"Unrecognised item {id} race/type text: {item_type!r}")
 
     race = "Neutral" if match.group(1) == NEUTRAL_RACE else match.group(1)
 
     stats = _parse_label_value_block(itemdata_elements[1])
     if "weight" not in stats:
-        raise RuntimeError("Item page is missing required stat: weight")
+        raise RuntimeError(f"Item page {id} is missing required stat: weight")
 
     reqs_el = soup.select_one(f"{ITEM_INFO_SELECTOR} .itemreq")
     reqs = _parse_label_value_block(reqs_el)
@@ -74,7 +74,7 @@ def _parse_monster_stats(id: int, soup: BeautifulSoup) -> dict:
 
     name_el = soup.select_one(NAME_SELECTOR)
     if name_el is None:
-        raise RuntimeError("Monster page is missing required field: name")
+        raise RuntimeError(f"Monster page {id} is missing required field: name")
 
     hp_el = soup.select_one(f"{MONSTER_INFO_SELECTOR} #overview #hp")
     mp_el = soup.select_one(f"{MONSTER_INFO_SELECTOR} #overview #mp")
@@ -89,8 +89,12 @@ def _parse_monster_stats(id: int, soup: BeautifulSoup) -> dict:
         missing.append("mp")
     if missing:
         raise RuntimeError(
-            f"Monster page is missing required stat(s): {', '.join(missing)}"
+            f"Monster page {id} is missing required stat(s): {', '.join(missing)}"
         )
+
+    # hp/mp presence is already guaranteed above, narrow for the type checker.
+    assert hp_el is not None
+    assert mp_el is not None
 
     result = {
         "id": id,

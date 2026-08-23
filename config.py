@@ -48,3 +48,9 @@ REQUEST_MIN_DELAY_SECONDS = 2.0
 REQUEST_MAX_DELAY_SECONDS = 4.0
 
 REQUEST_TIMEOUT_SECONDS = 30.0
+
+# --------------------------------------------------------------------------------------
+# Parser configuration
+# --------------------------------------------------------------------------------------
+# Some monster data is obfuscated/redacted, so we need to stop those monsters from being parsed.
+IGNORED_MONSTER_IDS = [2371]
