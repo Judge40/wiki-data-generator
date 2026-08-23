@@ -12,6 +12,11 @@ URL_TEMPLATES = {
     "monster": config.MONSTER_URL_TEMPLATE,
 }
 
+DEFAULT_ID_RANGES = {
+    "item": (config.ITEM_START_ID, config.ITEM_END_ID),
+    "monster": (config.MONSTER_START_ID, config.MONSTER_END_ID),
+}
+
 
 def scrape(
     fetch_type: str,
@@ -31,7 +36,7 @@ def scrape(
         log.info("No %s found for id %s", fetch_type, fetch_id)
         return None
 
-    log.info("Found %s %s", fetch_type, fetch_id)
+    log.debug("Found %s %s", fetch_type, fetch_id)
 
     stats = parse_stats(fetch_id, fetch_type, html)
 
@@ -39,3 +44,45 @@ def scrape(
         save_monster(stats)
 
     return stats
+
+
+def scrape_many(
+    fetch_type: str,
+    start_id: int | None = None,
+    end_id: int | None = None,
+    refresh_cache: bool = False,
+    force_refresh: bool = False,
+) -> tuple[int, int]:
+    """Scrape a range of ids for the given entity type.
+
+    start_id/end_id default to the configured range for fetch_type when omitted.
+    Returns a tuple of (number found, number invalid).
+    """
+    default_start, default_end = DEFAULT_ID_RANGES[fetch_type]
+    start_id = default_start if start_id is None else start_id
+    end_id = default_end if end_id is None else end_id
+    target_range = range(start_id, end_id + 1)
+
+    found = 0
+    invalid = 0
+    for fetch_id in target_range:
+        stats = scrape(
+            fetch_type,
+            fetch_id,
+            refresh_cache=refresh_cache,
+            force_refresh=force_refresh,
+        )
+        if stats is not None:
+            found += 1
+        else:
+            invalid += 1
+
+    log.debug(
+        "Scraped %s %s(s) (with %s invalid) in range %s-%s",
+        found,
+        fetch_type,
+        invalid,
+        target_range.start,
+        target_range.stop - 1,
+    )
+    return found, invalid

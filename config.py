@@ -16,12 +16,23 @@ try:
 except PackageNotFoundError:
     APP_VERSION = "0.0.0-dev"
 
+
+# --------------------------------------------------------------------------------------
+# Database configuration
+# --------------------------------------------------------------------------------------
+DB_PATH = os.environ.get("DATABASE_URL", "sqlite:///./parsed_data.sqlite")
+
 # --------------------------------------------------------------------------------------
 # Fetcher configuration
 # --------------------------------------------------------------------------------------
 BASE_URL = os.environ["FETCHER_BASE_URL"]
 ITEM_URL_TEMPLATE = f"{BASE_URL}/Item.asp?id={{id}}"
 MONSTER_URL_TEMPLATE = f"{BASE_URL}/Monster.asp?id={{id}}"
+
+ITEM_START_ID = int(os.environ.get("ITEM_START_ID", "1"))
+ITEM_END_ID = int(os.environ.get("ITEM_END_ID", "6000"))
+MONSTER_START_ID = int(os.environ.get("MONSTER_START_ID", "1"))
+MONSTER_END_ID = int(os.environ.get("MONSTER_END_ID", "5000"))
 
 USER_AGENT_SUFFIX = os.environ.get(
     "FETCHER_USER_AGENT_SUFFIX", "(personal wiki-data project)"
@@ -37,8 +48,3 @@ REQUEST_MIN_DELAY_SECONDS = 2.0
 REQUEST_MAX_DELAY_SECONDS = 4.0
 
 REQUEST_TIMEOUT_SECONDS = 30.0
-
-# --------------------------------------------------------------------------------------
-# Database configuration
-# --------------------------------------------------------------------------------------
-DB_PATH = os.environ.get("DATABASE_URL", "sqlite:///./parsed_data.sqlite")

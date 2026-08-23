@@ -62,6 +62,22 @@ python cli.py monster 456
 The command logs whether the requested page exists. A missing page exits with
 status code `1`; a successful lookup exits with status code `0`.
 
+Multiple items or monsters can be fetched at once:
+
+```text
+python cli.py items
+python cli.py monsters
+```
+
+By default all items/monsters will be fetched, based on the configured minimum
+and maximum IDs. A range can be provided as an optional argument to narrow the
+default search range.
+
+```text
+python cli.py items 1 1000
+python cli.py monsters 1001 1100
+```
+
 Add `-r`/`--refresh` to force a cached `200` response to be re-fetched, cached
 redirects (invalid IDs).
 
@@ -69,8 +85,8 @@ Add `-f`/`--force` to also drop cached redirects, for cases where a
 previously-invalid ID may now exist.
 
 ```text
-python cli.py monster 456 --refresh
-python cli.py monster 456 --force
+python cli.py item 456 --refresh
+python cli.py monsters 1 100 --force
 ```
 
 ## Fetching behavior
