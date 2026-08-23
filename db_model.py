@@ -21,7 +21,7 @@ class Monster(Base):
     __tablename__ = "monster"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=False)
-    name: Mapped[str] = mapped_column(String(30), nullable=False)
+    name: Mapped[str] = mapped_column(String(50), nullable=False)
     hp: Mapped[int] = mapped_column(nullable=False)
     mp: Mapped[int] = mapped_column(nullable=False)
     strength: Mapped[int] = mapped_column(nullable=False)
