@@ -2,16 +2,9 @@ import argparse
 import json
 import logging
 
-import config
-from fetcher import fetch
-from parser import parse_stats
+from orchestrator import scrape
 
 log = logging.getLogger("cli")
-
-URL_TEMPLATES = {
-    "item": config.ITEM_URL_TEMPLATE,
-    "monster": config.MONSTER_URL_TEMPLATE,
-}
 
 argument_parser = argparse.ArgumentParser(
     description="Fetch an item or monster by ID and cache the result."
@@ -30,19 +23,10 @@ if __name__ == "__main__":
     )
 
     args = argument_parser.parse_args()
-    fetch_type = args.fetch_type
-    fetch_id = args.fetch_id
 
-    url = URL_TEMPLATES[fetch_type].format(id=fetch_id)
+    stats = scrape(args.fetch_type, args.fetch_id)
 
-    html, is_valid = fetch(url)
-
-    if not is_valid:
-        log.info("No %s found for id %s", fetch_type, fetch_id)
+    if stats is None:
         raise SystemExit(1)
-
-    log.info("Found %s %s", fetch_type, fetch_id)
-
-    stats = parse_stats(fetch_id, fetch_type, html)
 
     log.info("Stats: %s", json.dumps(stats, indent=2))
