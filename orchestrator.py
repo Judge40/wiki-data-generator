@@ -3,6 +3,7 @@ import logging
 import config
 from fetcher import fetch
 from parser import parse_stats
+from repository import save_monster
 
 log = logging.getLogger("orchestrator")
 
@@ -32,4 +33,9 @@ def scrape(
 
     log.info("Found %s %s", fetch_type, fetch_id)
 
-    return parse_stats(fetch_id, fetch_type, html)
+    stats = parse_stats(fetch_id, fetch_type, html)
+
+    if fetch_type == "monster":
+        save_monster(stats)
+
+    return stats

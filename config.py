@@ -37,3 +37,8 @@ REQUEST_MIN_DELAY_SECONDS = 2.0
 REQUEST_MAX_DELAY_SECONDS = 4.0
 
 REQUEST_TIMEOUT_SECONDS = 30.0
+
+# --------------------------------------------------------------------------------------
+# Database configuration
+# --------------------------------------------------------------------------------------
+DB_PATH = os.environ.get("DATABASE_URL", "sqlite:///./parsed_data.sqlite")
