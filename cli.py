@@ -13,6 +13,12 @@ argument_parser.add_argument(
     "fetch_type", choices=["item", "monster"], help="The kind of entity to fetch"
 )
 argument_parser.add_argument("fetch_id", type=int, help="The ID of the entity to fetch")
+argument_parser.add_argument(
+    "-r", "--refresh", action="store_true", help="Refresh the cache for this entity"
+)
+argument_parser.add_argument(
+    "-f", "--force", action="store_true", help="Force refresh the cache for this entity"
+)
 
 
 if __name__ == "__main__":
@@ -23,8 +29,12 @@ if __name__ == "__main__":
     )
 
     args = argument_parser.parse_args()
-
-    stats = scrape(args.fetch_type, args.fetch_id)
+    stats = scrape(
+        args.fetch_type,
+        args.fetch_id,
+        refresh_cache=args.refresh,
+        force_refresh=args.force,
+    )
 
     if stats is None:
         raise SystemExit(1)

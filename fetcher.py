@@ -7,6 +7,7 @@ import random
 import time
 
 import requests_cache
+from requests import Request
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 
@@ -41,6 +42,21 @@ session.mount("http://", adapter)
 session.mount("https://", adapter)
 
 
+def _refresh_cache(url: str, force_refresh: bool = False) -> None:
+    """Delete a URL from the cache, if it exists."""
+    key = session.cache.create_key(Request("GET", url))
+    cached_response = session.cache.get_response(key)
+
+    if not cached_response:
+        return
+
+    if cached_response.status_code == 200 or force_refresh:
+        session.cache.delete(key)
+        log.debug("Deleted %s from cache", url)
+    else:
+        log.debug("Refresh skipped for %s (cached %s)", url, cached_response.status_code)
+
+
 def _rate_limit():
     """Enforce a delay between un-cached requests."""
     global _last_request_ts
@@ -57,10 +73,14 @@ def _rate_limit():
     _last_request_ts = time.monotonic()
 
 
-def fetch(url: str) -> tuple[str | None, bool]:
+def fetch(url: str, refresh_cache: bool = False, force_refresh: bool = False) -> tuple[str | None, bool]:
     """Fetch a URL and return the HTML content and a boolean indicating if the ID is valid."""
+    if refresh_cache or force_refresh:
+        _refresh_cache(url, force_refresh=force_refresh)
+
     cached = session.cache.contains(url=url)
     if not cached:
+        log.info("Fetching %s (not cached)", url)
         _rate_limit()
 
     resp = session.get(

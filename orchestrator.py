@@ -3,7 +3,6 @@ import logging
 import config
 from fetcher import fetch
 from parser import parse_stats
-from repository import save_monster
 
 log = logging.getLogger("orchestrator")
 
@@ -13,13 +12,20 @@ URL_TEMPLATES = {
 }
 
 
-def scrape(fetch_type: str, fetch_id: int) -> dict | None:
+def scrape(
+    fetch_type: str,
+    fetch_id: int,
+    refresh_cache: bool = False,
+    force_refresh: bool = False,
+) -> dict | None:
     """Fetch and parse an item/monster.
     Returns the parsed stats, or None if no entity exists for the given id.
     """
     url = URL_TEMPLATES[fetch_type].format(id=fetch_id)
 
-    html, is_valid = fetch(url)
+    html, is_valid = fetch(
+        url, refresh_cache=refresh_cache, force_refresh=force_refresh
+    )
     if not is_valid:
         log.info("No %s found for id %s", fetch_type, fetch_id)
         return None
