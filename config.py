@@ -30,7 +30,7 @@ ITEM_URL_TEMPLATE = f"{BASE_URL}/Item.asp?id={{id}}"
 MONSTER_URL_TEMPLATE = f"{BASE_URL}/Monster.asp?id={{id}}"
 
 ITEM_START_ID = int(os.environ.get("ITEM_START_ID", "1"))
-ITEM_END_ID = int(os.environ.get("ITEM_END_ID", "6000"))
+ITEM_END_ID = int(os.environ.get("ITEM_END_ID", "7000"))
 MONSTER_START_ID = int(os.environ.get("MONSTER_START_ID", "1"))
 MONSTER_END_ID = int(os.environ.get("MONSTER_END_ID", "5000"))
 

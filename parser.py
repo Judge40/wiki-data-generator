@@ -40,7 +40,7 @@ def _parse_item_stats(id: int, soup: BeautifulSoup) -> dict:
     )
 
     match = (
-        re.search(f"^(Human|Devil|{NEUTRAL_RACE}) ([a-zA-Z]+)$", item_type)
+        re.search(f"^(Human|Devil|{NEUTRAL_RACE}) ([a-z A-Z]+)$", item_type)
         if item_type
         else None
     )
