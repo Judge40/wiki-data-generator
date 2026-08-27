@@ -2,7 +2,7 @@ import enum
 from typing import Any, ClassVar
 
 from sqlalchemy import Enum, ForeignKey, String, case
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
@@ -103,6 +103,17 @@ class Weapon(Item, Equipment):
     __mapper_args__: ClassVar[dict[str, Any]] = {"polymorphic_identity": "WEAPON"}
 
 
+class Map(Base):
+    __tablename__ = "map"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
+
+    monsters: Mapped[list["Monster"]] = relationship(
+        secondary="monster_map", back_populates="maps"
+    )
+
+
 class Monster(Base):
     __tablename__ = "monster"
 
@@ -117,3 +128,14 @@ class Monster(Base):
     moral: Mapped[MoralEnum] = mapped_column(
         Enum(MoralEnum, create_constraint=True), nullable=False
     )
+
+    maps: Mapped[list["Map"]] = relationship(
+        secondary="monster_map", back_populates="monsters"
+    )
+
+
+class MonsterMap(Base):
+    __tablename__ = "monster_map"
+
+    monster_id: Mapped[int] = mapped_column(ForeignKey("monster.id"), primary_key=True)
+    map_id: Mapped[int] = mapped_column(ForeignKey("map.id"), primary_key=True)

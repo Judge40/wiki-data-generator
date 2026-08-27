@@ -33,7 +33,7 @@ def scrape(
         url, refresh_cache=refresh_cache, force_refresh=force_refresh
     )
     if not is_valid:
-        log.info("No %s found for id %s", fetch_type, fetch_id)
+        log.debug("No %s found for id %s", fetch_type, fetch_id)
         return None
 
     log.debug("Found %s %s", fetch_type, fetch_id)

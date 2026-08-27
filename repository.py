@@ -9,6 +9,7 @@ from db_model import (
     Base,
     Item,
     ItemTypeEnum,
+    Map,
     Monster,
     MoralEnum,
     RaceEnum,
@@ -53,11 +54,25 @@ def save_item(item_data: dict) -> None:
     log.debug("Saved item %s", item_data["id"])
 
 
+def _get_or_create_map(session: Session, map_name: str) -> Map:
+    """Fetch the Map row for map_name, creating it if it doesn't exist."""
+    map_obj = session.query(Map).filter_by(name=map_name).one_or_none()
+    if map_obj is None:
+        map_obj = Map(name=map_name)
+        session.add(map_obj)
+        session.flush()
+    return map_obj
+
+
 def save_monster(monster_data: dict) -> None:
-    """Upsert parsed monster stats."""
+    """Upsert parsed monster stats and its map associations."""
+    map_names = monster_data.get("maps", [])
     monster_data = {**monster_data, "moral": MoralEnum(monster_data["moral"])}
     monster_data = _filter_to_columns(Monster, monster_data)
     with Session(engine) as session:
-        session.merge(Monster(**monster_data))
+        monster = session.merge(Monster(**monster_data))
+        monster.maps = [_get_or_create_map(session, name) for name in map_names]
         session.commit()
-    log.debug("Saved monster %s", monster_data["id"])
+    log.debug(
+        "Saved monster %s with maps [%s]", monster_data["id"], ", ".join(map_names)
+    )

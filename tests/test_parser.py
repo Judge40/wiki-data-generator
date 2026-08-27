@@ -170,11 +170,12 @@ def test_parse_monster_stats_returns_expected_dict():
         defensive_dex=50,
         offensive_dex=60,
         moral="Moral Value",
+        locations=["Map 1", "Map 2"],
     )
 
     result = parser.parse_stats(1, "monster", monster_html)
 
-    assert len(result) == 9
+    assert len(result) == 10
     assert result["id"] == 1
     assert result["name"] == "Test Monster"
     assert result["hp"] == 10
@@ -184,6 +185,26 @@ def test_parse_monster_stats_returns_expected_dict():
     assert result["defensive_dexterity"] == 50
     assert result["offensive_dexterity"] == 60
     assert result["moral"] == "Moral Value"
+    assert result["maps"][0] == "Map 1"
+    assert result["maps"][1] == "Map 2"
+
+
+def test_parse_monster_stats_handles_empty_locations():
+    monster_html = _env.get_template("monster.html.jinja").render(
+        name="Test Monster",
+        hp=10,
+        mp=20,
+        str=30,
+        intel=40,
+        defensive_dex=50,
+        offensive_dex=60,
+        moral="Moral Value",
+        locations=[],
+    )
+
+    result = parser.parse_stats(1, "monster", monster_html)
+
+    assert result["maps"] == []
 
 
 def test_parse_monster_stats_keeps_moral_as_the_literal_string_none():

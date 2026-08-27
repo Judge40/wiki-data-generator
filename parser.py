@@ -96,6 +96,8 @@ def _parse_monster_stats(id: int, soup: BeautifulSoup) -> dict:
     assert hp_el is not None
     assert mp_el is not None
 
+    locations = soup.select("#pagecontent #monstermap ul li")
+
     result = {
         "id": id,
         "name": name_el.get_text(strip=True),
@@ -106,6 +108,7 @@ def _parse_monster_stats(id: int, soup: BeautifulSoup) -> dict:
         "offensive_dexterity": stats["offensive_dex"],
         "defensive_dexterity": stats["defensive_dex"],
         "moral": stats["moral"],
+        "maps": [location.get_text(strip=True) for location in locations],
     }
 
     log.debug("Parsed monster %s: %r", id, result)

@@ -36,6 +36,14 @@
         <span class="stat-req">Moral: {{ moral }}</span>
       </div>
     </div>
+    <div class="managebox" id="monstermap">
+      <a class="title" href="" id="location"><span> Spawn Location</span></a>
+      <ul>
+        {% for location in locations %}
+        <li>{{ location }}</li>
+        {% endfor %}
+      </ul>
+    </div>
   </div>
 </body>
 
