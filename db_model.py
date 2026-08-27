@@ -108,6 +108,9 @@ class Map(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
+    race: Mapped[RaceEnum | None] = mapped_column(
+        Enum(RaceEnum, create_constraint=True), nullable=True
+    )
 
     monsters: Mapped[list["Monster"]] = relationship(
         secondary="monster_map", back_populates="maps"

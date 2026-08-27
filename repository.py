@@ -54,11 +54,29 @@ def save_item(item_data: dict) -> None:
     log.debug("Saved item %s", item_data["id"])
 
 
+def _prompt_for_map_race(map_name: str) -> RaceEnum | None:
+    """Prompt the user to select a race for the given map."""
+    options = list(RaceEnum)
+    choices = ", ".join(f"{i + 1}={race.value}" for i, race in enumerate(options))
+    choices = f"0=Unknown, {choices}"
+
+    while True:
+        answer = input(
+            f"Map '{map_name}' is new. Select race ({choices}) [default: 0]: "
+        ).strip()
+        if not answer or answer == "0":
+            return None
+        if answer.isdigit() and 1 <= int(answer) <= len(options):
+            return options[int(answer) - 1]
+        print(f"Invalid selection: {answer!r}")
+
+
 def _get_or_create_map(session: Session, map_name: str) -> Map:
     """Fetch the Map row for map_name, creating it if it doesn't exist."""
     map_obj = session.query(Map).filter_by(name=map_name).one_or_none()
     if map_obj is None:
-        map_obj = Map(name=map_name)
+        map_race = _prompt_for_map_race(map_name)
+        map_obj = Map(name=map_name, race=map_race)
         session.add(map_obj)
         session.flush()
     return map_obj
