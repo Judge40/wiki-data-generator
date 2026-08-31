@@ -4,7 +4,14 @@ import config
 from db_model import Monster, MonsterTypeEnum, MoralEnum, RaceEnum
 from fetcher import fetch
 from parser import parse_stats
-from repository import get_all_monsters, save_item, save_monster, update_monster
+from repository import (
+    get_all_monsters,
+    save_item,
+    save_monster,
+    save_spell,
+    update_monster,
+)
+from spell_schema import load_spells_file
 
 log = logging.getLogger("orchestrator")
 
@@ -140,3 +147,16 @@ def enrich_monsters():
         )
 
     log.info("Enriched %s monster(s)", len(monsters))
+
+
+def import_spells(path: str = "spells.yml") -> int:
+    """Load, validate and save every spell defined in the given YAML file.
+
+    Returns the number of spells saved.
+    """
+    spells = load_spells_file(path)
+    for spell in spells:
+        save_spell(spell)
+
+    log.debug("Imported %s spell(s) from %s", len(spells), path)
+    return len(spells)

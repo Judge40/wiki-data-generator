@@ -1,0 +1,31 @@
+auras:
+  - weapon: Staff
+    aura:
+      - name: Rapid MP Recovery
+        requirements:
+          - skill: 15
+          - barr: 1000
+          - item:
+              id: 2361
+              name: "Devil Stone"
+              quantity: 10
+          - item:
+              id: 2362
+              name: "Spirit Stone"
+              quantity: 1
+      - name: Mages Contrivance
+        requirements:
+          - skill: 40
+          - barr: ?
+          - item:
+              id: ?
+              name: "?"
+              quantity: ?
+      - name: MP Saver
+        requirements:
+          - skill: 90
+          - barr: ?
+          - item:
+              id: ?
+              name: "?"
+              quantity: ?

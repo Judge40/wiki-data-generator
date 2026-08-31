@@ -1,7 +1,7 @@
 import enum
 from typing import Any, ClassVar
 
-from sqlalchemy import Enum, ForeignKey, String, case
+from sqlalchemy import Enum, ForeignKey, String, UniqueConstraint, case
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -22,6 +22,23 @@ class RaceEnum(enum.Enum):
     HUMAN = "Human"
     DEVIL = "Devil"
     NEUTRAL = "Neutral"
+
+
+class SchoolEnum(enum.Enum):
+    BLUE = "Blue"
+    WHITE = "White"
+    BLACK = "Black"
+
+
+class RequirementKindEnum(enum.Enum):
+    ALL = "All"
+    ANY = "Any"
+    LEVEL = "Level"
+    INTELLIGENCE = "Intelligence"
+    SKILL = "Skill"
+    BARR = "Barr"
+    MORAL = "Moral"
+    ITEM = "Item"
 
 
 class ItemTypeEnum(enum.Enum):
@@ -191,3 +208,74 @@ class MonsterItem(Base):
     monster: Mapped["Monster"] = relationship(back_populates="monster_items")
     map: Mapped["Map"] = relationship(back_populates="monster_items")
     item: Mapped["Item"] = relationship(back_populates="monster_items")
+
+
+class Spell(Base):
+    __tablename__ = "spell"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(50), nullable=False)
+    race: Mapped[RaceEnum] = mapped_column(
+        Enum(RaceEnum, create_constraint=True), nullable=False
+    )
+    school: Mapped[SchoolEnum] = mapped_column(
+        Enum(SchoolEnum, create_constraint=True), nullable=False
+    )
+
+    __table_args__ = (
+        UniqueConstraint("name", "race", name="unique_spell_name_per_race"),
+    )
+
+    levels: Mapped[list["SpellLevel"]] = relationship(
+        back_populates="spell", cascade="all, delete-orphan"
+    )
+
+
+class SpellLevel(Base):
+    __tablename__ = "spell_level"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    spell_id: Mapped[int] = mapped_column(ForeignKey("spell.id"), nullable=False)
+    level: Mapped[int] = mapped_column(nullable=False)
+    range: Mapped[int] = mapped_column(nullable=False)
+    duration: Mapped[int | None] = mapped_column(nullable=True)
+    power: Mapped[int] = mapped_column(nullable=False)
+    mp: Mapped[int] = mapped_column(nullable=False)
+
+    __table_args__ = (UniqueConstraint("spell_id", "level", name="unique_spell_level"),)
+
+    spell: Mapped["Spell"] = relationship(back_populates="levels")
+    requirements: Mapped[list["SpellRequirement"]] = relationship(
+        back_populates="spell_level", cascade="all, delete-orphan"
+    )
+
+
+class SpellRequirement(Base):
+    """A single node in a spell level's all/any requirement tree.
+
+    Top-level rows (parent_id is None) are implicitly AND-ed together. A row
+    with kind=ANY (or ALL) is a container whose children are its operands.
+    """
+
+    __tablename__ = "spell_requirement"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    spell_level_id: Mapped[int] = mapped_column(
+        ForeignKey("spell_level.id"), nullable=False
+    )
+    parent_id: Mapped[int | None] = mapped_column(
+        ForeignKey("spell_requirement.id"), nullable=True
+    )
+    kind: Mapped[RequirementKindEnum] = mapped_column(
+        Enum(RequirementKindEnum, create_constraint=True), nullable=False
+    )
+    value: Mapped[int | None] = mapped_column(nullable=True)
+    item_id: Mapped[int | None] = mapped_column(ForeignKey("item.id"), nullable=True)
+
+    spell_level: Mapped["SpellLevel"] = relationship(back_populates="requirements")
+    parent: Mapped["SpellRequirement | None"] = relationship(
+        remote_side=[id], back_populates="children"
+    )
+    children: Mapped[list["SpellRequirement"]] = relationship(
+        back_populates="parent", cascade="all, delete-orphan"
+    )

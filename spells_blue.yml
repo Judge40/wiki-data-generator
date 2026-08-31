@@ -1,0 +1,459 @@
+spells:
+  - name: Cure Wounds
+    race: Human
+    school: Blue
+    levels:
+      - level: 1
+        range: 2
+        power: -4
+        mp: 3
+        requirements:
+          - level: 7
+          - barr: 3000
+      - level: 2
+        range: 2
+        power: -6
+        mp: 3
+        requirements:
+          - skill: 3
+          - barr: 200
+      - level: 3
+        range: 2
+        power: -8
+        mp: 3
+        requirements:
+          - item:
+              id: 430
+              name: "Spirit's Powder"
+              quantity: 1
+      - level: 4
+        range: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 320
+              name: "Diamond Large"
+              quantity: 1
+  - name: Healing
+    race: Human
+    school: Blue
+    levels:
+      - level: 1
+        range: 2
+        power: -10
+        mp: 3
+        requirements:
+          - intelligence: 11
+      - level: 2
+        range: 2
+        power: -12
+        mp: 3
+        requirements:
+          - skill: 5
+          - barr: 300
+      - level: 3
+        range: 2
+        power: -14
+        mp: 3
+        requirements:
+          - item:
+              id: 430
+              name: "Spirit's Powder"
+              quantity: 1
+      - level: 4
+        range: 3
+        power: -16
+        mp: 3
+        requirements:
+          - item:
+              id: 320
+              name: "Diamond Large"
+              quantity: 1
+  - name: Fireball
+    race: Human
+    school: Blue
+    levels:
+      - level: 1
+        range: 5
+        power: 5
+        mp: 3
+        requirements:
+          - intelligence: 12
+          - barr: 200
+      - level: 2
+        range: 5
+        power: 7
+        mp: 3
+        requirements:
+          - skill: 5
+          - barr: 700
+      - level: 3
+        range: 5
+        power: 10
+        mp: 3
+        requirements:
+          - item:
+              id: 430
+              name: "Spirit's Powder"
+              quantity: 1
+      - level: 4
+        range: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 320
+              name: "Diamond Large"
+              quantity: 1
+  - name: Protection
+    race: Human
+    school: Blue
+    levels:
+      - level: 1
+        range: 0
+        duration: 30
+        power: -10
+        mp: 3
+        requirements:
+          - level: 5
+          - quest: Magic Recommendation (Head of Town)
+      - level: 2
+        range: 0
+        duration: 35
+        power: -12
+        mp: 3
+        requirements:
+          - skill: 5
+          - barr: 600
+      - level: 3
+        range: 0
+        duration: 40
+        power: -16
+        mp: 3
+        requirements:
+          - item:
+              id: 430
+              name: "Spirit's Powder"
+              quantity: 1
+      - level: 4
+        range: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 320
+              name: "Diamond Large"
+              quantity: 1
+  - name: Reflection
+    race: Human
+    school: Blue
+    levels:
+      - level: 1
+        range: 0
+        duration: 5
+        power: -1
+        mp: 8
+        requirements:
+          - intelligence: 18
+          - skill: 20
+          - any:
+              - barr: 2500
+              - item:
+                  id: 64
+                  name: "Orcish Metal"
+                  quantity: 25
+              - item:
+                  id: 90
+                  name: "Stige Skin"
+                  quantity: 15
+      - level: 2
+        range: 0
+        duration: 5
+        power: -1
+        mp: 7
+        requirements:
+          - skill: 25
+          - barr: 500
+      - level: 3
+        range: 0
+        duration: 5
+        power: -1
+        mp: 7
+        requirements:
+          - item:
+              id: 430
+              name: "Spirit's Powder"
+              quantity: 1
+      - level: 4
+        range: "?"
+        duration: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 320
+              name: "Diamond Large"
+              quantity: 1
+  - name: Weakening
+    race: Human
+    school: Blue
+    levels:
+      - level: 1
+        range: 4
+        duration: 20
+        power: 1
+        mp: 16
+        requirements:
+          - intelligence: 32
+          - skill: 50
+          - barr: 1000
+          - any:
+              - item:
+                  id: 403
+                  name: "Scorpion Tail"
+                  quantity: 15
+              - item:
+                  id: 404
+                  name: "Lizardman Plates"
+                  quantity: 10
+      - level: 2
+        range: 4
+        duration: 25
+        power: 1
+        mp: 16
+        requirements:
+          - skill: 55
+          - barr: 1000
+      - level: 3
+        range: 4
+        duration: 30
+        power: 1
+        mp: 16
+        requirements:
+          - item:
+              id: 430
+              name: "Spirit's Powder"
+              quantity: 1
+      - level: 4
+        range: 5
+        duration: 35
+        power: 1
+        mp: 16
+        requirements:
+          - item:
+              id: 320
+              name: "Diamond Large"
+              quantity: 1
+  - name: Stone Attack
+    race: Human
+    school: Blue
+    levels:
+      - level: 1
+        range: 4
+        power: 8
+        mp: 5
+        requirements:
+          - level: 17
+          - intelligence: 20
+          - skill: 25
+          - item:
+              id: 225
+              name: "Flute Of Earth"
+              quantity: 1
+      - level: 2
+        range: 4
+        power: 10
+        mp: 5
+        requirements:
+          - skill: 30
+          - barr: 1200
+      - level: 3
+        range: 4
+        power: 14
+        mp: 5
+        requirements:
+          - item:
+              id: 430
+              name: "Spirit's Powder"
+              quantity: 1
+      - level: 4
+        range: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 320
+              name: "Diamond Large"
+              quantity: 1
+  - name: Water Attack
+    race: Human
+    school: Blue
+    levels:
+      - level: 1
+        range: 4
+        power: 18
+        mp: 12
+        requirements:
+          - level: 19
+          - intelligence: 24
+          - skill: 28
+          - item:
+              id: 224
+              name: "Flute Of Water"
+              quantity: 1
+      - level: 2
+        range: 4
+        power: 20
+        mp: 12
+        requirements:
+          - skill: 33
+          - barr: 3000
+      - level: 3
+        range: 4
+        power: 26
+        mp: 12
+        requirements:
+          - item:
+              id: 430
+              name: "Spirit's Powder"
+              quantity: 1
+      - level: 4
+        range: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 320
+              name: "Diamond Large"
+              quantity: 1
+  - name: Flame Arrow
+    race: Human
+    school: Blue
+    levels:
+      - level: 1
+        range: 4
+        power: 20
+        mp: 15
+        requirements:
+          - level: 20
+          - intelligence: 28
+          - skill: 33
+          - item:
+              id: 223
+              name: "Flute Of Fire"
+              quantity: 1
+      - level: 2
+        range: 4
+        power: 22
+        mp: 15
+        requirements:
+          - skill: 38
+          - barr: 3200
+      - level: 3
+        range: 4
+        power: 28
+        mp: 15
+        requirements:
+          - item:
+              id: 430
+              name: "Spirit's Powder"
+              quantity: 1
+      - level: 4
+        range: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 320
+              name: "Diamond Large"
+              quantity: 1
+  - name: Healing Wind
+    race: Human
+    school: Blue
+    levels:
+      - level: 1
+        range: 2
+        power: -8
+        mp: 12
+        requirements:
+          - level: 22
+          - intelligence: 31
+          - skill: 30
+          - item:
+              id: 226
+              name: "Flute Of Wind"
+              quantity: 1
+      - level: 2
+        range: 2
+        power: -10
+        mp: 12
+        requirements:
+          - skill: 35
+          - barr: 2500
+      - level: 3
+        range: 2
+        power: -12
+        mp: 12
+        requirements:
+          - item:
+              id: 430
+              name: "Spirit's Powder"
+              quantity: 1
+      - level: 4
+        range: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 320
+              name: "Diamond Large"
+              quantity: 1
+  - name: Meteor Strike
+    race: Human
+    school: Blue
+    levels:
+      - level: 1
+        range: 5
+        power: 24
+        mp: 18
+        requirements:
+          - intelligence: 32
+          - skill: 38
+          - barr: 3000
+  - name: Ice Storm
+    race: Human
+    school: Blue
+    levels:
+      - level: 1
+        range: 5
+        power: 28
+        mp: 21
+        requirements:
+          - intelligence: 36
+          - skill: 43
+          - barr: 5000
+  - name: Dragon Breath
+    race: Human
+    school: Blue
+    levels:
+      - level: 1
+        range: 5
+        power: 36
+        mp: 27
+        requirements:
+          - intelligence: 57
+          - skill: 53
+          - barr: 7000
+  - name: Frost Wind
+    race: Human
+    school: Blue
+    levels:
+      - level: 1
+        range: 5
+        power: 30
+        mp: 35
+        requirements:
+          - intelligence: 91
+          - skill: 100
+          - barr: 10000

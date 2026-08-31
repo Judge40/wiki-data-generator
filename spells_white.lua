@@ -1,0 +1,458 @@
+return {
+    ["Light Arrow"] = {
+        race = "Human",
+        school = "White",
+        levels = {
+            [1] = {
+                range = 5,
+                power = 9,
+                mp = 8,
+                requirements = {
+                    level = 8,
+                    intelligence = 14,
+                    item = {{
+                        id = 70,
+                        name = "Tiger Leather",
+                        quantity = 3
+                    }, {
+                        id = 73,
+                        name = "Tiger Claw",
+                        quantity = 2
+                    }, {
+                        id = 71,
+                        name = "White Tiger Leather",
+                        quantity = 1
+                    }}
+                }
+            },
+            [2] = {
+                range = 6,
+                power = 10,
+                mp = 6,
+                requirements = {
+                    skill = 5,
+                    barr = 1000
+                }
+            },
+            [3] = {
+                range = 7,
+                power = 14,
+                mp = 6,
+                requirements = {
+                    item = {
+                        id = 428,
+                        name = "Angel`s Tear",
+                        quantity = 1
+                    }
+                }
+            },
+            [4] = {
+                range = "?",
+                power = "?",
+                mp = "?",
+                requirements = {
+                    item = {
+                        id = 320,
+                        name = "Diamond Large",
+                        quantity = 1
+                    }
+                }
+            }
+        }
+    },
+    ["Cure Poison"] = {
+        race = "Human",
+        school = "White",
+        levels = {
+            [1] = {
+                range = 5,
+                power = 0,
+                mp = 7,
+                requirements = {
+                    level = 10,
+                    intelligence = 15,
+                    skill = 5,
+                    barr = 300,
+                    item = {
+                        id = 64,
+                        name = "Orcish Metal",
+                        quantity = 10
+                    }
+                }
+            },
+            [2] = {
+                range = 6,
+                power = 0,
+                mp = 6,
+                requirements = {
+                    skill = 10,
+                    barr = 1200
+                }
+            },
+            [3] = {
+                range = 7,
+                power = 0,
+                mp = 5,
+                requirements = {
+                    item = {
+                        id = 428,
+                        name = "Angel`s Tear",
+                        quantity = 1
+                    }
+                }
+            },
+            [4] = {
+                range = "?",
+                power = 0,
+                mp = "?",
+                requirements = {
+                    item = {
+                        id = 320,
+                        name = "Diamond Large",
+                        quantity = 1
+                    }
+                }
+            }
+        }
+    },
+    ["Light Sword"] = {
+        race = "Human",
+        school = "White",
+        levels = {
+            [1] = {
+                range = 3,
+                power = 15,
+                mp = 10,
+                requirements = {
+                    level = 15,
+                    intelligence = 20,
+                    skill = 10,
+                    moral = 4,
+                    barr = 500,
+                    item = {{
+                        id = 78,
+                        name = "Werewolf Jewel",
+                        quantity = 3
+                    }, {
+                        id = 90,
+                        name = "Stige Skin",
+                        quantity = 2
+                    }}
+                }
+            },
+            [2] = {
+                range = 4,
+                power = 16,
+                mp = 8,
+                requirements = {
+                    skill = 15,
+                    barr = 3000
+                }
+            },
+            [3] = {
+                range = 5,
+                power = 20,
+                mp = 8,
+                requirements = {
+                    item = {
+                        id = 428,
+                        name = "Angel`s Tear",
+                        quantity = 1
+                    }
+                }
+            },
+            [4] = {
+                range = 6,
+                power = 22,
+                mp = 6,
+                requirements = {
+                    item = {
+                        id = 320,
+                        name = "Diamond Large",
+                        quantity = 1
+                    }
+                }
+            }
+        }
+    },
+    ["Giggling"] = {
+        race = "Human",
+        school = "White",
+        levels = {
+            [1] = {
+                range = 4,
+                duration = 30,
+                power = 1,
+                mp = 12,
+                requirements = {
+                    intelligence = 20,
+                    skill = 20,
+                    any = {{
+                        barr = 2500
+                    }, {
+                        item = {
+                            id = 64,
+                            name = "Orcish Metal",
+                            quantity = 25
+                        }
+                    }, {
+                        item = {
+                            id = 90,
+                            name = "Stige Skin",
+                            quantity = 15
+                        }
+                    }}
+                }
+            },
+            [2] = {
+                range = 5,
+                duration = 35,
+                power = 1,
+                mp = 11,
+                requirements = {
+                    skill = 25,
+                    barr = 500
+                }
+            },
+            [3] = {
+                range = 6,
+                duration = 40,
+                power = 1,
+                mp = 10,
+                requirements = {
+                    item = {
+                        id = 428,
+                        name = "Angel`s Tear",
+                        quantity = 1
+                    }
+                }
+            },
+            [4] = {
+                range = "?",
+                duration = "?",
+                power = "?",
+                mp = "?",
+                requirements = {
+                    item = {
+                        id = 320,
+                        name = "Diamond Large",
+                        quantity = 1
+                    }
+                }
+            }
+        }
+    },
+    ["Slow"] = {
+        race = "Human",
+        school = "White",
+        levels = {
+            [1] = {
+                range = 4,
+                duration = 20,
+                power = 1,
+                mp = 16,
+                requirements = {
+                    intelligence = 25,
+                    skill = 50,
+                    barr = 1000,
+                    any = {{
+                        item = {
+                            id = 403,
+                            name = "Scorpion Tail",
+                            quantity = 15
+                        }
+                    }, {
+                        item = {
+                            id = 404,
+                            name = "Lizardman Plate",
+                            quantity = 10
+                        }
+                    }}
+                }
+            },
+            [2] = {
+                range = 5,
+                duration = 25,
+                power = 1,
+                mp = 15,
+                requirements = {
+                    skill = 55,
+                    barr = 1000
+                }
+            },
+            [3] = {
+                range = 6,
+                duration = 30,
+                power = 1,
+                mp = 14,
+                requirements = {
+                    item = {
+                        id = 428,
+                        name = "Angel`s Tear",
+                        quantity = 1
+                    }
+                }
+            },
+            [4] = {
+                range = "?",
+                duration = "?",
+                power = "?",
+                mp = "?",
+                requirements = {
+                    item = {
+                        id = 320,
+                        name = "Diamond Large",
+                        quantity = 1
+                    }
+                }
+            }
+        }
+    },
+    ["Infernal Arrow"] = {
+        race = "Human",
+        school = "White",
+        levels = {
+            [1] = {
+                range = 5,
+                power = 20,
+                mp = 11,
+                requirements = {
+                    intelligence = 33,
+                    barr = 2000
+                }
+            }
+        }
+    },
+    ["Energy Bolt"] = {
+        race = "Human",
+        school = "White",
+        levels = {
+            [1] = {
+                range = 5,
+                power = 24,
+                mp = 12,
+                requirements = {
+                    intelligence = 32,
+                    barr = 4000
+                }
+            }
+        }
+    },
+    ["Death Globe"] = {
+        race = "Human",
+        school = "White",
+        levels = {
+            [1] = {
+                range = 5,
+                power = 28,
+                mp = 13,
+                requirements = {
+                    intelligence = 38,
+                    item = {{
+                        id = 293,
+                        name = "Gazer Crystal",
+                        quantity = 5
+                    }, {
+                        id = 193,
+                        name = "Golem Piece",
+                        quantity = 2
+                    }}
+                }
+            }
+        }
+    },
+    ["Iron Fist"] = {
+        race = "Human",
+        school = "White",
+        levels = {
+            [1] = {
+                range = 5,
+                power = 32,
+                mp = 14,
+                requirements = {
+                    intelligence = 44,
+                    barr = 7000
+                }
+            }
+        }
+    },
+    ["Fire Storm"] = {
+        race = "Human",
+        school = "White",
+        levels = {
+            [1] = {
+                range = 5,
+                power = 32,
+                mp = 55,
+                requirements = {
+                    intelligence = 110,
+                    skill = 100,
+                    moral = 31,
+                    barr = 10000
+                }
+            }
+        }
+    },
+    ["Dispel Aura"] = {
+        race = "Human",
+        school = "White",
+        levels = {
+            [1] = {
+                range = "?",
+                power = "?",
+                mp = "?",
+                requirements = {
+                    intelligence = 120,
+                    skill = 100,
+                    item = {{
+                        id = 5134,
+                        name = "Drazil Livers",
+                        quantity = 50
+                    }, {
+                        id = 5135,
+                        name = "Horror Eye",
+                        quantity = 70
+                    }, {
+                        id = 5136,
+                        name = "Prism Crystal",
+                        quantity = 80
+                    }, {
+                        id = 5248,
+                        name = "Demented Hog Tusk",
+                        quantity = 1
+                    }, {
+                        id = 428,
+                        name = "Angel`s Tear",
+                        quantity = 1
+                    }}
+                }
+            }
+        }
+    },
+    ["Smite"] = {
+        race = "Human",
+        school = "White",
+        levels = {
+            [1] = {
+                range = 4,
+                power = 41,
+                mp = 40,
+                requirements = {
+                    level = "?",
+                    intelligence = "?",
+                    skill = "?",
+                    moral = "?",
+                    item = {{
+                        id = 5909,
+                        name = "Scroll of Valour",
+                        quantity = 100
+                    }, {
+                        id = 5989,
+                        name = "Gold Pile",
+                        quantity = 10
+                    }}
+                }
+            }
+        }
+    }
+}

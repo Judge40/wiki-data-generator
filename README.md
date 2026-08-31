@@ -99,6 +99,17 @@ python cli.py monsters 1 100 --force
 - Uncached requests wait a random 2 to 4 seconds between requests and retry
 	transient failures such as `429` and `5xx` responses.
 
+## Database views
+
+`scripts/create_views.py` creates/refreshes `armour_view`, `monster_view`,
+`spell_view` and `weapon_view` in the configured database, for easier browsing
+with DB tools. It isn't wired into the app, so run it manually whenever you
+want the views to exist or need to pick up a schema change:
+
+```text
+python scripts/create_views.py
+```
+
 ## Testing
 
 With the development dependency group installed, run:

@@ -14,8 +14,14 @@ from db_model import (
     MonsterItem,
     MoralEnum,
     RaceEnum,
+    RequirementKindEnum,
+    Spell,
+    SpellLevel,
+    SpellRequirement,
     Weapon,
 )
+from spell_schema import Requirement
+from spell_schema import Spell as SpellSchema
 
 log = logging.getLogger("repository")
 
@@ -65,6 +71,52 @@ def _get_or_create_map(session: Session, map_name: str) -> Map:
     return map_obj
 
 
+def _to_requirement_row(req: Requirement, spell_level_id: int) -> SpellRequirement:
+    """Recursively convert a validated all/any requirement clause into a row."""
+    if req.any is not None:
+        return SpellRequirement(
+            spell_level_id=spell_level_id,
+            kind=RequirementKindEnum.ANY,
+            children=[_to_requirement_row(child, spell_level_id) for child in req.any],
+        )
+    if req.all is not None:
+        return SpellRequirement(
+            spell_level_id=spell_level_id,
+            kind=RequirementKindEnum.ALL,
+            children=[_to_requirement_row(child, spell_level_id) for child in req.all],
+        )
+    if req.level is not None:
+        return SpellRequirement(
+            spell_level_id=spell_level_id, kind=RequirementKindEnum.LEVEL, value=req.level
+        )
+    if req.intelligence is not None:
+        return SpellRequirement(
+            spell_level_id=spell_level_id,
+            kind=RequirementKindEnum.INTELLIGENCE,
+            value=req.intelligence,
+        )
+    if req.skill is not None:
+        return SpellRequirement(
+            spell_level_id=spell_level_id, kind=RequirementKindEnum.SKILL, value=req.skill
+        )
+    if req.barr is not None:
+        return SpellRequirement(
+            spell_level_id=spell_level_id, kind=RequirementKindEnum.BARR, value=req.barr
+        )
+    if req.moral is not None:
+        return SpellRequirement(
+            spell_level_id=spell_level_id,
+            kind=RequirementKindEnum.MORAL,
+            value=req.moral,
+        )
+    return SpellRequirement(
+        spell_level_id=spell_level_id,
+        kind=RequirementKindEnum.ITEM,
+        item_id=req.item.id,
+        value=req.item.quantity,
+    )
+
+
 def save_monster(monster_data: dict) -> None:
     """Upsert parsed monster stats, its map associations, and its item drops."""
     map_names = monster_data.get("maps", [])
@@ -110,3 +162,45 @@ def update_monster(monster_id: int, **fields) -> None:
         for key, value in fields.items():
             setattr(monster, key, value)
         session.commit()
+
+
+def save_spell(spell: SpellSchema) -> None:
+    """Upsert a validated spell and its levels."""
+    with Session(engine) as session:
+        spell_obj = (
+            session.query(Spell)
+            .filter_by(name=spell.name, race=spell.race)
+            .one_or_none()
+        )
+        if spell_obj is None:
+            spell_obj = Spell(name=spell.name, race=spell.race)
+            session.add(spell_obj)
+        else:
+            spell_obj.levels = []
+            session.flush()  # delete old levels before inserting the new ones
+        spell_obj.school = spell.school
+        level_objs = [
+            SpellLevel(
+                level=level.level,
+                range=level.range,
+                duration=level.duration,
+                power=level.power,
+                mp=level.mp,
+            )
+            for level in spell.levels
+        ]
+        spell_obj.levels = level_objs
+        session.flush()  # assign level_objs their ids so requirements can reference them
+        for level, level_obj in zip(spell.levels, level_objs):
+            if level.requirements is not None:
+                requirements = (
+                    level.requirements
+                    if isinstance(level.requirements, list)
+                    else level.requirements.all
+                )
+                level_obj.requirements = [
+                    _to_requirement_row(req, level_obj.id)
+                    for req in requirements
+                ]
+        session.commit()
+    log.debug("Saved spell %s (%s)", spell.name, spell.race.value)

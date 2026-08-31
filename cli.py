@@ -2,7 +2,7 @@ import argparse
 import json
 import logging
 
-from orchestrator import enrich_monsters, scrape, scrape_many
+from orchestrator import enrich_monsters, import_spells, scrape, scrape_many
 
 log = logging.getLogger("cli")
 
@@ -51,6 +51,22 @@ monsters_parser.add_argument(
 )
 _add_cache_flags(monsters_parser)
 
+spells_parser = subparsers.add_parser("import-spells", help="Load and save spells from a YAML file")
+spells_parser.add_argument(
+    "path", type=str, nargs="?", default="spells.yml", help="Path to the spells YAML file"
+)
+
+spells_parser = subparsers.add_parser(
+    "import-spells", help="Load and save spells from a YAML file"
+)
+spells_parser.add_argument(
+    "path",
+    type=str,
+    nargs="?",
+    default="spells.yml",
+    help="Path to the spells YAML file",
+)
+
 
 enrich_parser = subparsers.add_parser(
     "enrich", help="Enrich the fetched data using both item and monster information."
@@ -64,6 +80,11 @@ if __name__ == "__main__":
     )
 
     args = argument_parser.parse_args()
+
+    if args.command == "import-spells":
+        count = import_spells(args.path)
+        log.info("Imported %s spell(s) from %s", count, args.path)
+        raise SystemExit(0)
 
     if args.command == "enrich":
         enrich_monsters()

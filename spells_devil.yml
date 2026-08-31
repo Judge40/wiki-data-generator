@@ -1,0 +1,477 @@
+spells:
+  - name: Healing Magic
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 2
+        power: -10
+        mp: 3
+      - level: 2
+        range: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 5137
+              name: "Devil`s Blood"
+              quantity: 2
+      - level: 3
+        range: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 5137
+              name: "Devil`s Blood"
+              quantity: 3
+          - item:
+              id: 5252
+              name: "Ruby Large"
+              quantity: 1
+          - item:
+              id: 5989
+              name: "Gold Pile"
+              quantity: 1
+  - name: Flame Bolt
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 4
+        power: 7
+        mp: 5
+        requirements:
+          - level: 3
+      - level: 2
+        range: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 5137
+              name: "Devil`s Blood"
+              quantity: 2
+      - level: 3
+        range: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 5137
+              name: "Devil`s Blood"
+              quantity: 3
+          - item:
+              id: 5252
+              name: "Ruby Large"
+              quantity: 1
+          - item:
+              id: 5989
+              name: "Gold Pile"
+              quantity: 1
+  - name: Spirit Sword
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 5
+        power: 10
+        mp: 7
+        requirements:
+          - level: 10
+      - level: 2
+        range: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 5137
+              name: "Devil`s Blood"
+              quantity: 2
+      - level: 3
+        range: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 5137
+              name: "Devil`s Blood"
+              quantity: 3
+          - item:
+              id: 5252
+              name: "Ruby Large"
+              quantity: 1
+          - item:
+              id: 5989
+              name: "Gold Pile"
+              quantity: 1
+  - name: Poison Curse
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 3
+        duration: 40
+        power: 6
+        mp: 10
+        requirements:
+          - level: 13
+      - level: 2
+        range: "?"
+        duration: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 5137
+              name: "Devil`s Blood"
+              quantity: 2
+      - level: 3
+        range: "?"
+        duration: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 5137
+              name: "Devil`s Blood"
+              quantity: 3
+          - item:
+              id: 5252
+              name: "Ruby Large"
+              quantity: 1
+          - item:
+              id: 5989
+              name: "Gold Pile"
+              quantity: 1
+  - name: Confusion
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 4
+        duration: 20
+        power: 1
+        mp: 12
+        requirements:
+          - skill: 20
+          - item:
+              id: 2369
+              name: "Devil`s Spirit"
+              quantity: 10
+          - item:
+              id: 2362
+              name: "Spirit Stone"
+              quantity: 10
+      - level: 2
+        range: "?"
+        duration: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 5137
+              name: "Devil`s Blood"
+              quantity: 2
+      - level: 3
+        range: "?"
+        duration: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 5137
+              name: "Devil`s Blood"
+              quantity: 3
+          - item:
+              id: 5252
+              name: "Ruby Large"
+              quantity: 1
+          - item:
+              id: 5989
+              name: "Gold Pile"
+              quantity: 1
+  - name: Blindness
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 4
+        duration: 20
+        power: 1
+        mp: 16
+        requirements:
+          - skill: 50
+          - item:
+              id: 2369
+              name: "Devil`s Spirit"
+              quantity: 10
+          - item:
+              id: 2368
+              name: "Demon Skull"
+              quantity: 20
+          - item:
+              id: 2370
+              name: "Devil`s Scale"
+              quantity: 20
+      - level: 2
+        range: "?"
+        duration: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 5137
+              name: "Devil`s Blood"
+              quantity: 2
+      - level: 3
+        range: "?"
+        duration: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - item:
+              id: 5137
+              name: "Devil`s Blood"
+              quantity: 3
+          - item:
+              id: 5252
+              name: "Ruby Large"
+              quantity: 1
+          - item:
+              id: 5989
+              name: "Gold Pile"
+              quantity: 1
+  - name: Creeping Chaos
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 6
+        power: 17
+        mp: 11
+        requirements:
+          - intelligence: 21
+          - skill: 25
+          - item:
+              id: 2377
+              name: "Dread Leather"
+              quantity: 5
+          - item:
+              id: 2378
+              name: "Devil Leather"
+              quantity: 10
+          - item:
+              id: 2380
+              name: "Bone Rings"
+              quantity: 2
+  - name: Meteor Storm
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 6
+        power: 22
+        mp: 13
+        requirements:
+          - intelligence: 27
+          - skill: 38
+          - item:
+              id: 2368
+              name: "Demon Skull"
+              quantity: 50
+          - item:
+              id: 2370
+              name: "Devil`s Scale"
+              quantity: 30
+  - name: Lightning
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 6
+        power: 26
+        mp: 14
+        requirements:
+          - intelligence: 35
+          - skill: 59
+          - item:
+              id: 2369
+              name: "Devil`s Spirit"
+              quantity: 10
+          - item:
+              id: 2363
+              name: "Green Stone"
+              quantity: 10
+          - item:
+              id: 2364
+              name: "Yellow Stone"
+              quantity: 1
+  - name: Mass Heal
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 2
+        power: -8
+        mp: 20
+        requirements:
+          - intelligence: 50
+          - skill: 100
+          - item:
+              id: 2535
+              name: "Special Gem"
+              quantity: 50
+  - name: Crystal Arrow
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 4
+        power: 13
+        mp: 10
+        requirements:
+          - intelligence: 19
+          - barr: 2000
+      - level: X
+        range: 5
+        power: 29
+        mp: 15
+        requirements:
+          - barr: 100000
+  - name: Death Blow
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 5
+        power: 16
+        mp: 12
+        requirements:
+          - intelligence: 22
+          - skill: 50
+          - barr: 4000
+      - level: X
+        range: 5
+        power: 32
+        mp: 17
+        requirements:
+          - barr: 200000
+  - name: Black Lightning
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 4
+        power: 19
+        mp: 14
+        requirements:
+          - intelligence: 32
+          - item:
+              id: 2381
+              name: "Poison Plant"
+              quantity: 2
+          - item:
+              id: 2364
+              name: "Yellow Stone"
+              quantity: 5
+      - level: X
+        range: 5
+        power: 35
+        mp: 18
+        requirements:
+          - barr: "?"
+  - name: Explosion
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 4
+        power: 32
+        mp: 16
+        requirements:
+          - intelligence: 28
+          - barr: 7000
+      - level: X
+        range: 5
+        power: 38
+        mp: 19
+        requirements:
+          - intelligence: 28
+          - barr: 500000
+  - name: Hellfire
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 5
+        power: 19
+        mp: 36
+        requirements:
+          - intelligence: 65
+          - skill: 100
+          - item:
+              id: 2535
+              name: "Special Gem"
+              quantity: 10
+  - name: Fire Storm-X
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 5
+        power: 30
+        mp: 28
+        requirements:
+          - barr: 1000000
+  - name: Chain Lightning
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: 5
+        power: 32
+        mp: 55
+        requirements:
+          - intelligence: 110
+          - skill: 100
+          - barr: 10000
+      - level: X
+        range: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - barr: 2000000
+  - name: Zombie
+    race: Devil
+    school: Black
+    levels:
+      - level: 1
+        range: "?"
+        power: "?"
+        mp: "?"
+        requirements:
+          - intelligence: 120
+          - skill: 100
+          - barr: "?"
+          - item:
+              id: 2375
+              name: "Magic Pouch"
+              quantity: 100
+          - item:
+              id: 3959
+              name: "Miner Metal"
+              quantity: 30
+          - item:
+              id: 3674
+              name: "Monsterous Meat"
+              quantity: 70
+          - item:
+              id: 5249
+              name: "Demented Hog Tusk"
+              quantity: 1
+          - item:
+              id: 5137
+              name: "Devil`s Blood"
+              quantity: 1
+
