@@ -11,7 +11,19 @@ NAME_SELECTOR = f"{MONSTER_INFO_SELECTOR} .name"
 
 NEUTRAL_RACE = "Human & Devil"
 
-REQUIRED_MONSTER_STATS = ("str", "intel", "offensive_dex", "defensive_dex", "moral")
+REQUIRED_MONSTER_STATS = (
+    "str",
+    "offensive_str",
+    "defensive_str",
+    "intel",
+    "offensive_intel",
+    "defensive_intel",
+    "wisdom",
+    "dex",
+    "offensive_dex",
+    "defensive_dex",
+    "moral",
+)
 
 
 def parse_stats(id: int, type: str, html: str) -> dict:
@@ -104,7 +116,13 @@ def _parse_monster_stats(id: int, soup: BeautifulSoup) -> dict:
         "hp": _extract_number(hp_el.get_text(strip=True)),
         "mp": _extract_number(mp_el.get_text(strip=True)),
         "strength": stats["str"],
+        "offensive_strength": stats["offensive_str"],
+        "defensive_strength": stats["defensive_str"],
         "intelligence": stats["intel"],
+        "offensive_intelligence": stats["offensive_intel"],
+        "defensive_intelligence": stats["defensive_intel"],
+        "wisdom": stats["wisdom"],
+        "dexterity": stats["dex"],
         "offensive_dexterity": stats["offensive_dex"],
         "defensive_dexterity": stats["defensive_dex"],
         "moral": stats["moral"],
