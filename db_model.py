@@ -122,7 +122,13 @@ class Monster(Base):
     hp: Mapped[int] = mapped_column(nullable=False)
     mp: Mapped[int] = mapped_column(nullable=False)
     strength: Mapped[int] = mapped_column(nullable=False)
+    offensive_strength: Mapped[int] = mapped_column(nullable=False)
+    defensive_strength: Mapped[int] = mapped_column(nullable=False)
     intelligence: Mapped[int] = mapped_column(nullable=False)
+    offensive_intelligence: Mapped[int] = mapped_column(nullable=False)
+    defensive_intelligence: Mapped[int] = mapped_column(nullable=False)
+    wisdom: Mapped[int] = mapped_column(nullable=False)
+    dexterity: Mapped[int] = mapped_column(nullable=False)
     offensive_dexterity: Mapped[int] = mapped_column(nullable=False)
     defensive_dexterity: Mapped[int] = mapped_column(nullable=False)
     moral: Mapped[MoralEnum] = mapped_column(

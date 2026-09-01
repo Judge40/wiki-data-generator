@@ -166,24 +166,36 @@ def test_parse_monster_stats_returns_expected_dict():
         hp=10,
         mp=20,
         str=30,
+        offensive_str=31,
+        defensive_str=32,
         intel=40,
-        defensive_dex=50,
-        offensive_dex=60,
+        offensive_intel=41,
+        defensive_intel=42,
+        wisdom=50,
+        dex=60,
+        offensive_dex=61,
+        defensive_dex=62,
         moral="Moral Value",
         locations=["Map 1", "Map 2"],
     )
 
     result = parser.parse_stats(1, "monster", monster_html)
 
-    assert len(result) == 10
+    assert len(result) == 16
     assert result["id"] == 1
     assert result["name"] == "Test Monster"
     assert result["hp"] == 10
     assert result["mp"] == 20
     assert result["strength"] == 30
+    assert result["offensive_strength"] == 31
+    assert result["defensive_strength"] == 32
     assert result["intelligence"] == 40
-    assert result["defensive_dexterity"] == 50
-    assert result["offensive_dexterity"] == 60
+    assert result["offensive_intelligence"] == 41
+    assert result["defensive_intelligence"] == 42
+    assert result["wisdom"] == 50
+    assert result["dexterity"] == 60
+    assert result["offensive_dexterity"] == 61
+    assert result["defensive_dexterity"] == 62
     assert result["moral"] == "Moral Value"
     assert result["maps"][0] == "Map 1"
     assert result["maps"][1] == "Map 2"
@@ -195,9 +207,15 @@ def test_parse_monster_stats_handles_empty_locations():
         hp=10,
         mp=20,
         str=30,
+        offensive_str=31,
+        defensive_str=32,
         intel=40,
-        defensive_dex=50,
-        offensive_dex=60,
+        offensive_intel=41,
+        defensive_intel=42,
+        wisdom=50,
+        dex=60,
+        offensive_dex=61,
+        defensive_dex=62,
         moral="Moral Value",
         locations=[],
     )
@@ -213,9 +231,15 @@ def test_parse_monster_stats_keeps_moral_as_the_literal_string_none():
         hp=10,
         mp=20,
         str=30,
+        offensive_str=31,
+        defensive_str=32,
         intel=40,
-        defensive_dex=50,
-        offensive_dex=60,
+        offensive_intel=41,
+        defensive_intel=42,
+        wisdom=50,
+        dex=60,
+        offensive_dex=61,
+        defensive_dex=62,
         moral="None",
     )
 

@@ -33,45 +33,13 @@ monster_url = (
 )
 
 
-armour_view = select(
-    Item.id,
-    Item.name,
-    Item.race,
-    Item.weight,
-    Item.type,
-    Armour.defense_min,
-    Armour.defense_max,
-    Armour.durability,
-    item_url.label("url"),
-).select_from(Item.__table__.join(Armour.__table__, Armour.id == Item.id))
+armour_view = select(Armour, item_url.label("url"))
 
 
-monster_view = select(
-    Monster.id,
-    Monster.name,
-    Monster.hp,
-    Monster.mp,
-    Monster.strength,
-    Monster.intelligence,
-    Monster.offensive_dexterity,
-    Monster.defensive_dexterity,
-    Monster.moral,
-    monster_url.label("url"),
-).select_from(Monster.__table__)
+monster_view = select(Monster, monster_url.label("url")).select_from(Monster.__table__)
 
 
-weapon_view = select(
-    Item.id,
-    Item.name,
-    Item.race,
-    Item.weight,
-    Item.type,
-    Weapon.attack_min,
-    Weapon.attack_max,
-    Weapon.speed,
-    Weapon.durability,
-    item_url.label("url"),
-).select_from(Item.__table__.join(Weapon.__table__, Weapon.id == Item.id))
+weapon_view = select(Weapon, item_url.label("url"))
 
 
 if __name__ == "__main__":
