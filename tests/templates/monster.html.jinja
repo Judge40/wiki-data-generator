@@ -55,12 +55,37 @@
       </div>
     </div>
     <div class="managebox" id="monstermap">
-      <a class="title" href="" id="location"><span> Spawn Location</span></a>
+      <a class="title" href id="location"><span> Spawn Location</span></a>
       <ul>
         {% for location in locations %}
         <li>{{ location }}</li>
         {% endfor %}
       </ul>
+    </div>
+    <div class="managebox" id="monsteritems">
+      <a class="title" href id="randomdrop"><span> Drop file</span></a>
+      {% set counter = namespace(value=0) %}
+      {% for drop_map in drops %}
+      <span class="mapname">{{ drop_map.name }}</span>
+      {% for item in drop_map['items'] %}
+      {% set counter.value = counter.value + 1 %}
+      <ul>
+        <li>
+          <span class="monstername">
+            <a href="https://example.com/item.asp?id={{ item.id }}">{{ item.name }}</a>
+          </span>
+          <input type="checkbox" id="toggle-{{ item.id }}-{{ counter.value }}" class="drop-toggle">
+          <label for="toggle-{{ item.id }}-{{ counter.value }}" class="drop-label">Show Drop Rates</label>
+          <div class="drop-info">
+            {% for rate in item.rates %}
+            <span>{{ rate.value }}{% if rate.label %} {{ rate.label }}{% endif %}</span>
+            <br>
+            {% endfor %}
+          </div>
+        </li>
+        {% endfor %}
+      {% endfor %}
+      {% for _ in range(counter.value) %}</ul>{% endfor %}
     </div>
   </div>
 </body>

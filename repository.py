@@ -11,6 +11,7 @@ from db_model import (
     ItemTypeEnum,
     Map,
     Monster,
+    MonsterItem,
     MoralEnum,
     RaceEnum,
     Weapon,
@@ -65,13 +66,22 @@ def _get_or_create_map(session: Session, map_name: str) -> Map:
 
 
 def save_monster(monster_data: dict) -> None:
-    """Upsert parsed monster stats and its map associations."""
+    """Upsert parsed monster stats, its map associations, and its item drops."""
     map_names = monster_data.get("maps", [])
+    drops = monster_data.get("drops", [])
     monster_data = {**monster_data, "moral": MoralEnum(monster_data["moral"])}
     monster_data = _filter_to_columns(Monster, monster_data)
     with Session(engine) as session:
         monster = session.merge(Monster(**monster_data))
         monster.maps = [_get_or_create_map(session, name) for name in map_names]
+        monster.monster_items = [
+            MonsterItem(
+                map_id=_get_or_create_map(session, drop["map"]).id,
+                item_id=drop["item_id"],
+                drop_rate=drop["drop_rate"],
+            )
+            for drop in drops
+        ]
         session.commit()
     log.debug(
         "Saved monster %s with maps [%s]", monster_data["id"], ", ".join(map_names)

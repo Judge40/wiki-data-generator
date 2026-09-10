@@ -9,6 +9,40 @@ TEMPLATES_DIR = Path(__file__).parent / "templates"
 _env = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATES_DIR))
 
 
+def _render_monster(overrides: dict | None = None) -> str:
+    """Render monster.html.jinja with default stats, overridden as needed per-test."""
+    data = {
+        "name": "Test Monster",
+        "hp": 10,
+        "mp": 20,
+        "str": 30,
+        "offensive_str": 31,
+        "defensive_str": 32,
+        "intel": 40,
+        "offensive_intel": 41,
+        "defensive_intel": 42,
+        "wisdom": 50,
+        "dex": 60,
+        "offensive_dex": 61,
+        "defensive_dex": 62,
+        "moral": "Moral Value",
+        "locations": ["Map 70", "Map 71"],
+        "drops": [
+            {
+                "name": "Map 70",
+                "items": [
+                    {
+                        "id": 80,
+                        "name": "Item 80",
+                        "rates": [{"value": "80%", "label": None}],
+                    }
+                ],
+            }
+        ],
+    } | (overrides or {})
+    return _env.get_template("monster.html.jinja").render(**data)
+
+
 def test_parse_stats_raises_when_unknown_type():
     with pytest.raises(RuntimeError):
         parser.parse_stats(1, "unknown", "<html></html>")
@@ -161,27 +195,11 @@ def test_parse_monster_stats_raises_when_page_is_empty():
 
 
 def test_parse_monster_stats_returns_expected_dict():
-    monster_html = _env.get_template("monster.html.jinja").render(
-        name="Test Monster",
-        hp=10,
-        mp=20,
-        str=30,
-        offensive_str=31,
-        defensive_str=32,
-        intel=40,
-        offensive_intel=41,
-        defensive_intel=42,
-        wisdom=50,
-        dex=60,
-        offensive_dex=61,
-        defensive_dex=62,
-        moral="Moral Value",
-        locations=["Map 1", "Map 2"],
-    )
+    monster_html = _render_monster()
 
     result = parser.parse_stats(1, "monster", monster_html)
 
-    assert len(result) == 16
+    assert len(result) == 17
     assert result["id"] == 1
     assert result["name"] == "Test Monster"
     assert result["hp"] == 10
@@ -197,52 +215,81 @@ def test_parse_monster_stats_returns_expected_dict():
     assert result["offensive_dexterity"] == 61
     assert result["defensive_dexterity"] == 62
     assert result["moral"] == "Moral Value"
-    assert result["maps"][0] == "Map 1"
-    assert result["maps"][1] == "Map 2"
+    assert result["maps"][0] == "Map 70"
+    assert result["maps"][1] == "Map 71"
+    assert result["drops"] == [
+        {"monster_id": 1, "item_id": 80, "map": "Map 70", "drop_rate": 80.0}
+    ]
+
+
+def test_parse_monster_stats_keeps_moral_as_the_literal_string_none():
+    monster_html = _render_monster({"moral": "None"})
+
+    result = parser.parse_stats(1, "monster", monster_html)
+
+    assert result["moral"] == "None"
 
 
 def test_parse_monster_stats_handles_empty_locations():
-    monster_html = _env.get_template("monster.html.jinja").render(
-        name="Test Monster",
-        hp=10,
-        mp=20,
-        str=30,
-        offensive_str=31,
-        defensive_str=32,
-        intel=40,
-        offensive_intel=41,
-        defensive_intel=42,
-        wisdom=50,
-        dex=60,
-        offensive_dex=61,
-        defensive_dex=62,
-        moral="Moral Value",
-        locations=[],
-    )
+    monster_html = _render_monster({"locations": []})
 
     result = parser.parse_stats(1, "monster", monster_html)
 
     assert result["maps"] == []
 
 
-def test_parse_monster_stats_keeps_moral_as_the_literal_string_none():
-    monster_html = _env.get_template("monster.html.jinja").render(
-        name="Test Monster",
-        hp=10,
-        mp=20,
-        str=30,
-        offensive_str=31,
-        defensive_str=32,
-        intel=40,
-        offensive_intel=41,
-        defensive_intel=42,
-        wisdom=50,
-        dex=60,
-        offensive_dex=61,
-        defensive_dex=62,
-        moral="None",
+def test_parse_monster_stats_handles_empty_drops():
+    monster_html = _render_monster({"drops": []})
+
+    result = parser.parse_stats(1, "monster", monster_html)
+
+    assert result["drops"] == []
+
+
+def test_parse_monster_stats_parses_multiple_drops_across_multiple_maps():
+    monster_html = _render_monster(
+        {
+            "drops": [
+                {
+                    "name": "Map 1",
+                    "items": [
+                        {
+                            "id": 10,
+                            "name": "Item 10",
+                            "rates": [
+                                {"value": "90.00%", "label": "Bonus 1"},
+                                {"value": "95.00%", "label": "Bonus 2"},
+                                {"value": "100%", "label": "Bonus 3"},
+                            ],
+                        },
+                        {
+                            "id": 11,
+                            "name": "Item 11",
+                            "rates": [
+                                {"value": "0.01%", "label": None},
+                                {"value": "0.50%", "label": "Bonus"},
+                            ],
+                        },
+                    ],
+                },
+                {
+                    "name": "Map 2",
+                    "items": [
+                        {
+                            "id": 20,
+                            "name": "Item 20",
+                            "rates": [{"value": "0.20%", "label": None}],
+                        }
+                    ],
+                },
+            ]
+        }
     )
 
     result = parser.parse_stats(1, "monster", monster_html)
 
-    assert result["moral"] == "None"
+    assert result["drops"] == [
+        {"monster_id": 1, "item_id": 10, "map": "Map 1", "drop_rate": 90.0},
+        {"monster_id": 1, "item_id": 11, "map": "Map 1", "drop_rate": 0.01},
+        {"monster_id": 1, "item_id": 20, "map": "Map 2", "drop_rate": 0.2},
+    ]

@@ -64,6 +64,8 @@ class Item(Base):
     )
     weight: Mapped[int] = mapped_column(nullable=False)
 
+    monster_items: Mapped[list["MonsterItem"]] = relationship(back_populates="item")
+
     __mapper_args__: ClassVar[dict[str, Any]] = {
         "polymorphic_on": case(
             (type.in_(WEAPON_TYPES), "WEAPON"),
@@ -113,6 +115,8 @@ class Map(Base):
         secondary="monster_map", back_populates="maps"
     )
 
+    monster_items: Mapped[list["MonsterItem"]] = relationship(back_populates="map")
+
 
 class Monster(Base):
     __tablename__ = "monster"
@@ -139,9 +143,27 @@ class Monster(Base):
         secondary="monster_map", back_populates="monsters"
     )
 
+    monster_items: Mapped[list["MonsterItem"]] = relationship(
+        back_populates="monster", cascade="all, delete-orphan"
+    )
+
 
 class MonsterMap(Base):
     __tablename__ = "monster_map"
 
     monster_id: Mapped[int] = mapped_column(ForeignKey("monster.id"), primary_key=True)
     map_id: Mapped[int] = mapped_column(ForeignKey("map.id"), primary_key=True)
+
+
+class MonsterItem(Base):
+    __tablename__ = "monster_item"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    monster_id: Mapped[int] = mapped_column(ForeignKey("monster.id"), nullable=False)
+    map_id: Mapped[int] = mapped_column(ForeignKey("map.id"), nullable=False)
+    item_id: Mapped[int] = mapped_column(ForeignKey("item.id"), nullable=False)
+    drop_rate: Mapped[float] = mapped_column(nullable=False)
+
+    monster: Mapped["Monster"] = relationship(back_populates="monster_items")
+    map: Mapped["Map"] = relationship(back_populates="monster_items")
+    item: Mapped["Item"] = relationship(back_populates="monster_items")

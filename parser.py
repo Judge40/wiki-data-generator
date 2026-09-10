@@ -7,6 +7,7 @@ log = logging.getLogger("parser")
 
 ITEM_INFO_SELECTOR = "#pagecontent .iteminfo"
 MONSTER_INFO_SELECTOR = "#pagecontent #monsterinfo"
+MONSTER_ITEMS_SELECTOR = "#pagecontent #monsteritems"
 NAME_SELECTOR = f"{MONSTER_INFO_SELECTOR} .name"
 
 NEUTRAL_RACE = "Human & Devil"
@@ -113,8 +114,8 @@ def _parse_monster_stats(id: int, soup: BeautifulSoup) -> dict:
     result = {
         "id": id,
         "name": name_el.get_text(strip=True),
-        "hp": _extract_number(hp_el.get_text(strip=True)),
-        "mp": _extract_number(mp_el.get_text(strip=True)),
+        "hp": _extract_int(hp_el.get_text(strip=True)),
+        "mp": _extract_int(mp_el.get_text(strip=True)),
         "strength": stats["str"],
         "offensive_strength": stats["offensive_str"],
         "defensive_strength": stats["defensive_str"],
@@ -127,13 +128,63 @@ def _parse_monster_stats(id: int, soup: BeautifulSoup) -> dict:
         "defensive_dexterity": stats["defensive_dex"],
         "moral": stats["moral"],
         "maps": [location.get_text(strip=True) for location in locations],
+        "drops": _parse_monster_drops(id, soup),
     }
 
     log.debug("Parsed monster %s: %r", id, result)
     return result
 
 
-def _extract_number(text: str | None) -> int | None:
+def _parse_monster_drops(id: int, soup: BeautifulSoup) -> list[dict]:
+    """Flatten the drop table into a list of
+    {monster_id, item_id, map, drop_rate} dicts, one per item/map pairing.
+    """
+    drops = []
+    current_map = None
+    for el in soup.select(
+        f"{MONSTER_ITEMS_SELECTOR} .mapname, {MONSTER_ITEMS_SELECTOR} li"
+    ):
+        if "mapname" in el.get("class", []):
+            current_map = el.get_text(strip=True)
+            continue
+
+        link_el = el.select_one(".monstername a")
+        rate_el = el.select_one(".drop-info span")
+        if link_el is None or rate_el is None or current_map is None:
+            continue
+
+        item_id = _extract_id_reference(link_el.get("href", ""))
+        if item_id is None:
+            continue
+
+        drops.append(
+            {
+                "monster_id": id,
+                "item_id": item_id,
+                "map": current_map,
+                "drop_rate": _extract_float(
+                    rate_el.get_text(strip=True) if rate_el else None
+                ),
+            }
+        )
+    return drops
+
+
+def _extract_id_reference(href: str) -> int | None:
+    """'https://example.com/item.asp?id=123' -> 123."""
+    match = re.search(r"[?&]id=(\d+)", href)
+    return int(match.group(1)) if match else None
+
+
+def _extract_float(text: str | None) -> float | None:
+    """'13.50%' -> 13.5. Handles None gracefully for missing elements."""
+    if text is None:
+        return None
+    match = re.search(r"[\d.]+", text)
+    return float(match.group()) if match else None
+
+
+def _extract_int(text: str | None) -> int | None:
     """'124 hp' -> 124. Handles None gracefully for missing elements."""
     if text is None:
         return None
