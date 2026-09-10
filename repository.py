@@ -1,7 +1,7 @@
 import logging
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 import config
 from db_model import (
@@ -86,3 +86,27 @@ def save_monster(monster_data: dict) -> None:
     log.debug(
         "Saved monster %s with maps [%s]", monster_data["id"], ", ".join(map_names)
     )
+
+
+def get_all_monsters() -> list[Monster]:
+    """Return every monster, with its maps and item drops eagerly loaded."""
+    with Session(engine) as session:
+        monsters = (
+            session.query(Monster)
+            .options(
+                joinedload(Monster.maps),
+                joinedload(Monster.monster_items).joinedload(MonsterItem.item),
+            )
+            .all()
+        )
+        session.expunge_all()
+    return monsters
+
+
+def update_monster(monster_id: int, **fields) -> None:
+    """Persist derived/enrichment columns for an already-saved monster."""
+    with Session(engine) as session:
+        monster = session.get(Monster, monster_id)
+        for key, value in fields.items():
+            setattr(monster, key, value)
+        session.commit()

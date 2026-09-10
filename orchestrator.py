@@ -1,9 +1,10 @@
 import logging
 
 import config
+from db_model import Monster, MonsterTypeEnum, MoralEnum, RaceEnum
 from fetcher import fetch
 from parser import parse_stats
-from repository import save_item, save_monster
+from repository import get_all_monsters, save_item, save_monster, update_monster
 
 log = logging.getLogger("orchestrator")
 
@@ -99,3 +100,43 @@ def scrape_many(
         target_range.stop - 1,
     )
     return found, invalid
+
+
+def _get_monster_race(monster: Monster) -> RaceEnum | None:
+    races = set()
+
+    if not monster.maps and not monster.monster_items:
+        return None
+
+    for map in monster.maps:
+        races.add(map.race)
+
+    for item in monster.monster_items:
+        races.add(item.item.race)
+
+    # Remove neutral so we can identify human or devil races more accurately.
+    races.discard(RaceEnum.NEUTRAL)
+    return races.pop() if len(races) == 1 else RaceEnum.NEUTRAL
+
+
+def _get_monster_type(monster: Monster) -> MonsterTypeEnum:
+    if any(item.item_id in config.BOSS_ONLY_ITEM_IDS for item in monster.monster_items):
+        return MonsterTypeEnum.BOSS
+
+    if monster.moral == MoralEnum.NONE and not monster.monster_items:
+        return MonsterTypeEnum.NPC
+
+    return MonsterTypeEnum.MONSTER
+
+
+def enrich_monsters():
+    log.info("Enriching monsters...")
+    monsters = get_all_monsters()
+    for monster in monsters:
+        update_monster(
+            monster.id,
+            race=_get_monster_race(monster),
+            type=_get_monster_type(monster),
+        )
+
+    log.info("Enriched %s monster(s)", len(monsters))

@@ -2,7 +2,7 @@ import argparse
 import json
 import logging
 
-from orchestrator import scrape, scrape_many
+from orchestrator import enrich_monsters, scrape, scrape_many
 
 log = logging.getLogger("cli")
 
@@ -52,6 +52,10 @@ monsters_parser.add_argument(
 _add_cache_flags(monsters_parser)
 
 
+enrich_parser = subparsers.add_parser(
+    "enrich", help="Enrich the fetched data using both item and monster information."
+)
+
 if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO,
@@ -60,6 +64,10 @@ if __name__ == "__main__":
     )
 
     args = argument_parser.parse_args()
+
+    if args.command == "enrich":
+        enrich_monsters()
+        raise SystemExit(0)
 
     if args.command in ("item", "monster"):
         stats = scrape(

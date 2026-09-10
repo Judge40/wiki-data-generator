@@ -51,6 +51,12 @@ WEAPON_TYPES = {
 }
 
 
+class MonsterTypeEnum(enum.Enum):
+    MONSTER = "Monster"
+    BOSS = "Boss"
+    NPC = "NPC"
+
+
 class Item(Base):
     __tablename__ = "item"
 
@@ -110,6 +116,9 @@ class Map(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
+    race: Mapped[RaceEnum] = mapped_column(
+        Enum(RaceEnum, create_constraint=True), nullable=True
+    )
 
     monsters: Mapped[list["Monster"]] = relationship(
         secondary="monster_map", back_populates="maps"
@@ -121,6 +130,7 @@ class Map(Base):
 class Monster(Base):
     __tablename__ = "monster"
 
+    # Parsed fields.
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=False)
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     hp: Mapped[int] = mapped_column(nullable=False)
@@ -145,6 +155,14 @@ class Monster(Base):
 
     monster_items: Mapped[list["MonsterItem"]] = relationship(
         back_populates="monster", cascade="all, delete-orphan"
+    )
+
+    # Derived fields.
+    race: Mapped[RaceEnum] = mapped_column(
+        Enum(RaceEnum, create_constraint=True), nullable=True
+    )
+    type: Mapped[MonsterTypeEnum] = mapped_column(
+        Enum(MonsterTypeEnum, create_constraint=True), nullable=True
     )
 
 

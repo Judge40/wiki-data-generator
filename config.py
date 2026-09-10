@@ -53,4 +53,9 @@ REQUEST_TIMEOUT_SECONDS = 30.0
 # Parser configuration
 # --------------------------------------------------------------------------------------
 # Some monster data is obfuscated/redacted, so we need to stop those monsters from being parsed.
-IGNORED_MONSTER_IDS = [2371]
+IGNORED_MONSTER_IDS = {2371}
+
+# --------------------------------------------------------------------------------------
+# Monster enrichment configuration
+# --------------------------------------------------------------------------------------
+BOSS_ONLY_ITEM_IDS = {5909}
