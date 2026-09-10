@@ -7,10 +7,10 @@ Usage:
     python create_views.py
 """
 
-from sqlalchemy import String, cast, literal, select, text
+from sqlalchemy import String, cast, func, literal, select, text
 
 import config
-from db_model import Armour, Item, Monster, Weapon
+from db_model import Armour, Item, Map, Monster, MonsterItem, MonsterMap, Weapon
 from repository import engine
 
 
@@ -31,12 +31,37 @@ monster_url_prefix, monster_url_suffix = config.MONSTER_URL_TEMPLATE.split(
 monster_url = (
     literal(monster_url_prefix) + cast(Monster.id, String) + literal(monster_url_suffix)
 )
-
+monster_maps = (
+    select(func.group_concat(Map.name, ", "))
+    .select_from(Map)
+    .join(MonsterMap, MonsterMap.map_id == Map.id)
+    .where(MonsterMap.monster_id == Monster.id)
+    .correlate(Monster)
+    .scalar_subquery()
+)
 
 armour_view = select(Armour, item_url.label("url"))
 
 
-monster_view = select(Monster, monster_url.label("url")).select_from(Monster.__table__)
+monster_view = select(Monster, monster_maps.label("maps"), monster_url.label("url"))
+monster_drop_view = (
+    select(
+        Monster.id.label("monster_id"),
+        Monster.name.label("monster_name"),
+        Map.name.label("map"),
+        Item.id.label("item_id"),
+        Item.name.label("item_name"),
+        (func.min(100, MonsterItem.drop_rate)).label("drop_rate_base"),
+        (func.min(100, MonsterItem.drop_rate * 1.1)).label("drop_rate_conti"),
+        (func.min(100, MonsterItem.drop_rate * 1.2)).label("drop_rate_ctf"),
+        (func.min(100, MonsterItem.drop_rate * 1.3)).label("drop_rate_conti_ctf"),
+        item_url.label("item_url"),
+    )
+    .select_from(MonsterItem)
+    .join(MonsterItem.monster)
+    .join(MonsterItem.map)
+    .join(MonsterItem.item)
+)
 
 
 weapon_view = select(Weapon, item_url.label("url"))
@@ -45,4 +70,5 @@ weapon_view = select(Weapon, item_url.label("url"))
 if __name__ == "__main__":
     create_view("armour_view", armour_view)
     create_view("monster_view", monster_view)
+    create_view("monster_drop_view", monster_drop_view)
     create_view("weapon_view", weapon_view)
