@@ -26,6 +26,15 @@ REQUIRED_MONSTER_STATS = (
     "moral",
 )
 
+ITEM_REQ_FIELDS = {
+    "req_str": "required_strength",
+    "req_int": "required_intelligence",
+    "req_wis": "required_wisdom",
+    "req_dex": "required_dexterity",
+    "req_con": "required_constitution",
+    "req_skill": "required_skill",
+}
+
 
 def parse_stats(id: int, type: str, html: str) -> dict:
     """Given an HTML page for an item or monster, return a dict of stats."""
@@ -68,6 +77,7 @@ def _parse_item_stats(id: int, soup: BeautifulSoup) -> dict:
 
     reqs_el = soup.select_one(f"{ITEM_INFO_SELECTOR} .itemreq")
     reqs = _parse_label_value_block(reqs_el)
+    reqs = {ITEM_REQ_FIELDS[k]: v for k, v in reqs.items() if k in ITEM_REQ_FIELDS}
 
     result = {
         "id": id,

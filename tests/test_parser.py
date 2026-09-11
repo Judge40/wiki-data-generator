@@ -108,11 +108,14 @@ def test_parse_item_stats_returns_expected_dict_when_type_is_armour():
             "Weight": 30,
             "Durability": 40,
         },
+        reqs={
+            "Str": 50,
+        },
     )
 
     result = parser.parse_stats(1, "item", item_html)
 
-    assert len(result) == 8
+    assert len(result) == 9
     assert result["id"] == 1
     assert result["name"] == "Test Armour"
     assert result["race"] == "Human"
@@ -121,6 +124,7 @@ def test_parse_item_stats_returns_expected_dict_when_type_is_armour():
     assert result["defense_max"] == 20
     assert result["weight"] == 30
     assert result["durability"] == 40
+    assert result["required_strength"] == 50
 
 
 def test_parse_item_stats_returns_expected_dict_when_type_is_weapon():
@@ -133,11 +137,15 @@ def test_parse_item_stats_returns_expected_dict_when_type_is_weapon():
             "Durability": 40,
             "Speed": "A(500)",
         },
+        reqs={
+            "Skill": 60,
+            "Str": 61,
+        },
     )
 
     result = parser.parse_stats(1, "item", item_html)
 
-    assert len(result) == 9
+    assert len(result) == 11
     assert result["id"] == 1
     assert result["name"] == "Test Weapon"
     assert result["race"] == "Human"
@@ -147,6 +155,8 @@ def test_parse_item_stats_returns_expected_dict_when_type_is_weapon():
     assert result["weight"] == 30
     assert result["durability"] == 40
     assert result["speed"] == "A(500)"
+    assert result["required_skill"] == 60
+    assert result["required_strength"] == 61
 
 
 def test_parse_item_stats_returns_expected_dict_when_type_is_misc():
@@ -174,17 +184,23 @@ def test_parse_item_stats_includes_requirements():
             "Weight": 10,
         },
         reqs={
-            "Str": 20,
-            "Dex": 30,
-            "Skill": 40,
+            "Skill": 20,
+            "Str": 30,
+            "Int": 40,
+            "Wis": 50,
+            "Dex": 60,
+            "Con": 70,
         },
     )
 
     result = parser.parse_stats(1, "item", item_html)
 
-    assert result["req_str"] == 20
-    assert result["req_dex"] == 30
-    assert result["req_skill"] == 40
+    assert result["required_skill"] == 20
+    assert result["required_strength"] == 30
+    assert result["required_intelligence"] == 40
+    assert result["required_wisdom"] == 50
+    assert result["required_dexterity"] == 60
+    assert result["required_constitution"] == 70
 
 
 def test_parse_monster_stats_raises_when_page_is_empty():

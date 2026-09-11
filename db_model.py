@@ -86,6 +86,11 @@ class Equipment:
     """Mixin for fields shared by equippable item categories (armour, weapons)."""
 
     durability: Mapped[int] = mapped_column(nullable=False)
+    required_strength: Mapped[int] = mapped_column(nullable=True)
+    required_intelligence: Mapped[int] = mapped_column(nullable=True)
+    required_wisdom: Mapped[int] = mapped_column(nullable=True)
+    required_dexterity: Mapped[int] = mapped_column(nullable=True)
+    required_constitution: Mapped[int] = mapped_column(nullable=True)
 
 
 class Armour(Item, Equipment):
@@ -107,6 +112,7 @@ class Weapon(Item, Equipment):
     attack_min: Mapped[int] = mapped_column(nullable=False)
     attack_max: Mapped[int] = mapped_column(nullable=False)
     speed: Mapped[str] = mapped_column(nullable=True)
+    required_skill: Mapped[int] = mapped_column(nullable=True)
 
     __mapper_args__: ClassVar[dict[str, Any]] = {"polymorphic_identity": "WEAPON"}
 
