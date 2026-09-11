@@ -26,15 +26,16 @@ def _render_monster(overrides: dict | None = None) -> str:
         "offensive_dex": 61,
         "defensive_dex": 62,
         "moral": "Moral Value",
-        "locations": ["Map 70", "Map 71"],
+        "model_id": 70,
+        "locations": ["Map 80", "Map 81"],
         "drops": [
             {
-                "name": "Map 70",
+                "name": "Map 80",
                 "items": [
                     {
-                        "id": 80,
-                        "name": "Item 80",
-                        "rates": [{"value": "80%", "label": None}],
+                        "id": 90,
+                        "name": "Item 90",
+                        "rates": [{"value": "90%", "label": None}],
                     }
                 ],
             }
@@ -215,7 +216,7 @@ def test_parse_monster_stats_returns_expected_dict():
 
     result = parser.parse_stats(1, "monster", monster_html)
 
-    assert len(result) == 17
+    assert len(result) == 18
     assert result["id"] == 1
     assert result["name"] == "Test Monster"
     assert result["hp"] == 10
@@ -231,10 +232,11 @@ def test_parse_monster_stats_returns_expected_dict():
     assert result["offensive_dexterity"] == 61
     assert result["defensive_dexterity"] == 62
     assert result["moral"] == "Moral Value"
-    assert result["maps"][0] == "Map 70"
-    assert result["maps"][1] == "Map 71"
+    assert result["model_id"] == 70
+    assert result["maps"][0] == "Map 80"
+    assert result["maps"][1] == "Map 81"
     assert result["drops"] == [
-        {"monster_id": 1, "item_id": 80, "map": "Map 70", "drop_rate": 80.0}
+        {"monster_id": 1, "item_id": 90, "map": "Map 80", "drop_rate": 90.0}
     ]
 
 

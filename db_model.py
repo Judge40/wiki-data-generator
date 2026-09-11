@@ -155,6 +155,8 @@ class Monster(Base):
         Enum(MoralEnum, create_constraint=True), nullable=False
     )
 
+    model_id: Mapped[int] = mapped_column(nullable=False)
+
     maps: Mapped[list["Map"]] = relationship(
         secondary="monster_map", back_populates="monsters"
     )

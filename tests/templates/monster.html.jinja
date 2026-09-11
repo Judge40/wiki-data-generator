@@ -54,6 +54,11 @@
         <span class="stat-req">Moral: {{ moral }}</span>
       </div>
     </div>
+    <div class="managebox" id="monstermodel">
+      <div class="image">
+        <img src="https://example.com/characters/{{ model_id }}.png" alt="{{ name }}">
+      </div>
+    </div>
     <div class="managebox" id="monstermap">
       <a class="title" href id="location"><span> Spawn Location</span></a>
       <ul>
@@ -84,8 +89,9 @@
           </div>
         </li>
         {% endfor %}
-      {% endfor %}
-      {% for _ in range(counter.value) %}</ul>{% endfor %}
+        {% endfor %}
+        {% for _ in range(counter.value) %}
+      </ul>{% endfor %}
     </div>
   </div>
 </body>

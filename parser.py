@@ -8,6 +8,7 @@ log = logging.getLogger("parser")
 ITEM_INFO_SELECTOR = "#pagecontent .iteminfo"
 MONSTER_INFO_SELECTOR = "#pagecontent #monsterinfo"
 MONSTER_ITEMS_SELECTOR = "#pagecontent #monsteritems"
+MONSTER_MODEL_SELECTOR = "#pagecontent #monstermodel"
 NAME_SELECTOR = f"{MONSTER_INFO_SELECTOR} .name"
 
 NEUTRAL_RACE = "Human & Devil"
@@ -119,6 +120,7 @@ def _parse_monster_stats(id: int, soup: BeautifulSoup) -> dict:
     assert hp_el is not None
     assert mp_el is not None
 
+    model_img_el = soup.select_one(f"{MONSTER_MODEL_SELECTOR} img")
     locations = soup.select("#pagecontent #monstermap ul li")
 
     result = {
@@ -137,6 +139,9 @@ def _parse_monster_stats(id: int, soup: BeautifulSoup) -> dict:
         "offensive_dexterity": stats["offensive_dex"],
         "defensive_dexterity": stats["defensive_dex"],
         "moral": stats["moral"],
+        "model_id": _extract_int(model_img_el.get("src", ""))
+        if model_img_el
+        else None,
         "maps": [location.get_text(strip=True) for location in locations],
         "drops": _parse_monster_drops(id, soup),
     }
