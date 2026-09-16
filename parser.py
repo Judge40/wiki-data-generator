@@ -9,6 +9,7 @@ ITEM_INFO_SELECTOR = "#pagecontent .iteminfo"
 MONSTER_INFO_SELECTOR = "#pagecontent #monsterinfo"
 MONSTER_ITEMS_SELECTOR = "#pagecontent #monsteritems"
 MONSTER_MODEL_SELECTOR = "#pagecontent #monstermodel"
+CRAFT_RECIPE_SELECTOR = "#pagecontent #itemcraftrecipe"
 NAME_SELECTOR = f"{MONSTER_INFO_SELECTOR} .name"
 UPGRADE_INFO_SELECTOR = "#pagecontent #itemupgradeused"
 
@@ -88,6 +89,7 @@ def _parse_item_stats(id: int, soup: BeautifulSoup) -> dict:
 
     if max_upgrades is not None and requires_skill is not None:
         item_type = "Upgrade"
+    craft_recipe = _parse_craft_recipe(id, soup)
 
     result = {
         "id": id,
@@ -99,6 +101,12 @@ def _parse_item_stats(id: int, soup: BeautifulSoup) -> dict:
     }
     result.update(stats.items())
     result.update(reqs.items())
+    if craft_recipe:
+        if race == "Neutral":
+            # TODO: Neutral items have multiple recipes, which are not yet handled.
+            log.warning("Neutral item %s has craft recipe, ignoring.", id)
+        else:
+            result.update(craft_recipe)
 
     log.debug("Parsed item %s: %r", id, result)
     return result
@@ -178,6 +186,14 @@ def _parse_monster_stats(id: int, soup: BeautifulSoup) -> dict:
 
     log.debug("Parsed monster %s: %r", id, result)
     return result
+
+
+def _select_text(soup, selector: str, *, strip: bool = True) -> str | None:
+    """Select a single element and get its text, or None if not found."""
+    element = soup.select_one(selector)
+    if element is None:
+        return None
+    return element.get_text(strip=strip)
 
 
 def _parse_monster_drops(id: int, soup: BeautifulSoup) -> list[dict]:
@@ -292,3 +308,117 @@ def _expand_ranges(stats: dict) -> dict:
         else:
             result[key] = split
     return result
+
+
+def _parse_craft_materials(id: int, soup: BeautifulSoup) -> tuple[dict, dict]:
+    """
+    Parse crafting materials from item page.
+
+    Returns a tuple of two dicts: (general_materials, specific_materials).
+    """
+    general_material_entries = []
+    general_elements = soup.select(
+        f"{CRAFT_RECIPE_SELECTOR} li:has(span.item-general-count)"
+    )
+    for el in general_elements:
+        name = _select_text(el, "div.item-info")
+        quantity = _select_text(el, "span.item-general-count")
+
+        if name and quantity:
+            general_material_entries.append((name, _extract_int(quantity)))
+
+    general_material_entries = _collapse_duplicate_craft_materials(
+        id, general_material_entries
+    )
+    general_materials = (
+        dict(general_material_entries) if general_material_entries is not None else {}
+    )
+
+    specific_materials = {}
+    specific_elements = soup.select(f"{CRAFT_RECIPE_SELECTOR} li:has(span.item-count)")
+
+    for el in specific_elements:
+        item_id = None
+        link = el.select_one("div.item-info a")
+        if link and link.attrs and "href" in link.attrs:
+            match = re.search(r"id=(\d+)", link["href"])
+            if match:
+                item_id = int(match.group(1))
+        quantity = _select_text(el, "span.item-count")
+
+        if item_id and quantity:
+            specific_materials[item_id] = _extract_int(quantity)
+
+    return general_materials, specific_materials
+
+
+def _collapse_duplicate_craft_materials(
+    id: int, materials: list[tuple[str, int | None]]
+) -> list[tuple[str, int | None]] | None:
+    """Collapse identical repeated recipe blocks, or return None for alternates."""
+    material_names = [name for name, _ in materials]
+    if len(material_names) == len(set(material_names)):
+        return materials
+
+    recipe_length = len(materials) // 2
+    if (
+        len(materials) % 2 == 0
+        and materials[:recipe_length] == materials[recipe_length:]
+    ):
+        return materials[:recipe_length]
+
+    log.warning("Item %s has alternate craft recipes, ignoring.", id)
+    return None
+
+
+def _parse_craft_recipe(id: int, soup: BeautifulSoup) -> dict | None:
+    """
+    Parse crafting recipe from item page.
+
+    Returns dict with keys:
+    - craft_skill_type: str (Accessory, Armor, Cooking, Potion, Weapon)
+    - craft_skill: int (required skill level)
+    - craft_item_type: str (item type, e.g., Shoes, Ring)
+    - craft_materials: dict with keys "general" and "specific", each mapping to a dict of materials and quantities
+
+    Returns None if item cannot be crafted.
+    """
+    # Check if item cannot be crafted
+    recipe_li = _select_text(soup, f"{CRAFT_RECIPE_SELECTOR} li")
+    if recipe_li and "Cannot be crafted" in recipe_li:
+        return None
+
+    skill_type = None
+    req_skill = 0
+    item_type = _select_text(soup, f"{CRAFT_RECIPE_SELECTOR} span.craft-type")
+    if item_type:
+        item_type = " ".join(item_type.split())
+    if item_type in {"Prepare Skill", "Smelt Skill", "Synthesis Skill"}:
+        skill_type = item_type.removesuffix(" Skill")
+        item_type = "Material"
+    else:
+        # Parse craft skill requirement: "Req. Armor Skill : 5".
+        skill_req = _select_text(soup, f"{CRAFT_RECIPE_SELECTOR} span.craft-skill-req")
+        if skill_req:
+            match = re.search(r"Req\.\s+(\w+)\s+Skill\s*:\s*(-?\d+)", skill_req)
+            if match:
+                skill_type = match.group(1)
+                req_skill = int(match.group(2))
+
+    if skill_type is None:
+        return None
+
+    req_materials = _parse_craft_materials(id, soup)
+
+    if not req_materials[0] and not req_materials[1]:
+        return None
+
+    return {
+        "craft_skill_type": skill_type,
+        "craft_skill": req_skill,
+        "craft_item_type": item_type,
+        "craft_materials": {
+            "general": req_materials[0],
+            "specific": req_materials[1],
+        },
+    }

@@ -9,6 +9,54 @@ class Base(DeclarativeBase):
     pass
 
 
+class CraftSkillTypeEnum(enum.Enum):
+    ACCESSORY = "Accessory"
+    ARMOUR = "Armor"
+    COOKING = "Cooking"
+    PREPARE = "Prepare"
+    POTION = "Potion"
+    SMELT = "Smelt"
+    SYNTHESIS = "Synthesis"
+    WEAPON = "Weapon"
+
+
+class CraftItemTypeEnum(enum.Enum):
+    """Craft item types, grouped by the skill that creates them."""
+
+    MATERIAL = "Material"
+
+    # Accessory
+    BRACELET = "Bracelet"
+    RING = "Ring"
+    NECKLACE = "Necklace"
+    EARRING = "Earring"
+
+    # Armour
+    ARMOUR_TOP = "Armor Top"
+    ARMOUR_BOTTOM = "Armor Bottom"
+    ARMOUR_BOOTS = "Armor Boots"
+    HELMET = "Helmet"
+    SHIELD = "Shield"
+    ROBE = "Robe"
+    GARMENT_TOP = "Garment Top"
+    GARMENT_BOTTOM = "Garment Bottom"
+    SHOES = "Shoes"
+
+    # Weapon
+    SWORD = "1 Handed Sword"
+    AXE = "Axe"
+    BOW = "Bow"
+    STAFF = "Staff"
+    SPEAR = "Spear"
+    KNUCKLE = "Knuckle"
+
+    # Cooking
+    FOOD = "Food"
+
+    # Potion
+    POTION = "Potion"
+
+
 class MoralEnum(enum.Enum):
     NONE = "None"
     VERY_POOR = "Very Poor"
@@ -74,6 +122,19 @@ class Item(Base):
 
     monster_items: Mapped[list["MonsterItem"]] = relationship(back_populates="item")
 
+    craft_skill_type: Mapped[CraftSkillTypeEnum | None] = mapped_column(
+        Enum(CraftSkillTypeEnum, create_constraint=True), nullable=True
+    )
+    craft_skill: Mapped[int] = mapped_column(nullable=True)
+    craft_item_type: Mapped[CraftItemTypeEnum | None] = mapped_column(
+        Enum(CraftItemTypeEnum, create_constraint=True),
+        nullable=True,
+    )
+
+    recipes: Mapped[list["ItemRecipe"]] = relationship(
+        back_populates="item", cascade="all, delete-orphan"
+    )
+
     __mapper_args__: ClassVar[dict[str, Any]] = {
         "polymorphic_on": case(
             (type.in_(WEAPON_TYPES), "WEAPON"),
@@ -83,6 +144,33 @@ class Item(Base):
         ),
         "polymorphic_identity": "ITEM",
     }
+
+
+class ItemRecipe(Base):
+    __tablename__ = "item_recipe"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    item_id: Mapped[int] = mapped_column(ForeignKey(Item.id), nullable=False)
+    bone: Mapped[int] = mapped_column(nullable=True)
+    cloth: Mapped[int] = mapped_column(nullable=True)
+    leather: Mapped[int] = mapped_column(nullable=True)
+    meat: Mapped[int] = mapped_column(nullable=True)
+    metal: Mapped[int] = mapped_column(nullable=True)
+    spice: Mapped[int] = mapped_column(nullable=True)
+    wood: Mapped[int] = mapped_column(nullable=True)
+
+    specific_id_1: Mapped[int] = mapped_column(nullable=True)
+    specific_quantity_1: Mapped[int] = mapped_column(nullable=True)
+    specific_id_2: Mapped[int] = mapped_column(nullable=True)
+    specific_quantity_2: Mapped[int] = mapped_column(nullable=True)
+    specific_id_3: Mapped[int] = mapped_column(nullable=True)
+    specific_quantity_3: Mapped[int] = mapped_column(nullable=True)
+    specific_id_4: Mapped[int] = mapped_column(nullable=True)
+    specific_quantity_4: Mapped[int] = mapped_column(nullable=True)
+    specific_id_5: Mapped[int] = mapped_column(nullable=True)
+    specific_quantity_5: Mapped[int] = mapped_column(nullable=True)
+
+    item: Mapped["Item"] = relationship(back_populates="recipes")
 
 
 class Equipment:
@@ -99,7 +187,7 @@ class Equipment:
 class Armour(Item, Equipment):
     __tablename__ = "armour"
 
-    id: Mapped[int] = mapped_column(ForeignKey("item.id"), primary_key=True)
+    id: Mapped[int] = mapped_column(ForeignKey(Item.id), primary_key=True)
     defense_min: Mapped[int] = mapped_column(nullable=True)
     defense_max: Mapped[int] = mapped_column(nullable=True)
 
@@ -109,7 +197,7 @@ class Armour(Item, Equipment):
 class Weapon(Item, Equipment):
     __tablename__ = "weapon"
 
-    id: Mapped[int] = mapped_column(ForeignKey("item.id"), primary_key=True)
+    id: Mapped[int] = mapped_column(ForeignKey(Item.id), primary_key=True)
     attack_min: Mapped[int] = mapped_column(nullable=False)
     attack_max: Mapped[int] = mapped_column(nullable=False)
     speed: Mapped[str] = mapped_column(nullable=True)
@@ -188,8 +276,8 @@ class Monster(Base):
 class MonsterMap(Base):
     __tablename__ = "monster_map"
 
-    monster_id: Mapped[int] = mapped_column(ForeignKey("monster.id"), primary_key=True)
-    map_id: Mapped[int] = mapped_column(ForeignKey("map.id"), primary_key=True)
+    monster_id: Mapped[int] = mapped_column(ForeignKey(Monster.id), primary_key=True)
+    map_id: Mapped[int] = mapped_column(ForeignKey(Map.id), primary_key=True)
 
 
 class MonsterItem(Base):

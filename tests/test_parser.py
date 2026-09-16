@@ -366,3 +366,151 @@ def test_parse_monster_stats_parses_multiple_drops_across_multiple_maps():
         {"monster_id": 1, "item_id": 11, "map": "Map 1", "drop_rate": 0.01},
         {"monster_id": 1, "item_id": 20, "map": "Map 2", "drop_rate": 0.2},
     ]
+
+
+def test_parse_item_stats_returns_none_when_cannot_be_crafted():
+    item_html = _env.get_template("item.html.jinja").render(
+        name="Test Item",
+        type="Human Sundry",
+        stats={"Weight": 5},
+    )
+
+    result = parser.parse_stats(1, "item", item_html)
+
+    assert "craft_skill_type" not in result
+    assert "craft_skill" not in result
+    assert "craft_item_type" not in result
+    assert "craft_materials" not in result
+
+
+def test_parse_item_stats_includes_craft_recipe_with_generic_materials():
+    item_html = _env.get_template("item.html.jinja").render(
+        name="Test Armour",
+        type="Human Armour",
+        stats={"Weight": 10},
+        craft_recipe={
+            "craft_type": "Armor",
+            "req_skill": 5,
+            "item_type": "Shoes",
+            "materials": {
+                "general": [["Leather", 3], ["Cloth", 1]],
+            },
+        },
+    )
+
+    result = parser.parse_stats(1, "item", item_html)
+
+    assert result["craft_skill_type"] == "Armor"
+    assert result["craft_skill"] == 5
+    assert result["craft_item_type"] == "Shoes"
+    assert result["craft_materials"]["general"]["Leather"] == 3
+    assert result["craft_materials"]["general"]["Cloth"] == 1
+
+
+def test_parse_item_stats_includes_craft_recipe_with_specific_items():
+    item_html = _env.get_template("item.html.jinja").render(
+        name="Test Accessory",
+        type="Human Accessory",
+        stats={"Weight": 2},
+        craft_recipe={
+            "craft_type": "Accessory",
+            "req_skill": 0,
+            "item_type": "Ring",
+            "materials": {
+                "specific": [[123, "Copper Metal", 3], [124, "Orcish Metal", 2]],
+            },
+        },
+    )
+
+    result = parser.parse_stats(1, "item", item_html)
+
+    assert result["craft_skill_type"] == "Accessory"
+    assert result["craft_skill"] == 0
+    assert result["craft_item_type"] == "Ring"
+    assert result["craft_materials"]["specific"][123] == 3
+    assert result["craft_materials"]["specific"][124] == 2
+
+
+def test_parse_item_stats_accepts_duplicate_generic_recipe_once():
+    item_html = _env.get_template("item.html.jinja").render(
+        name="Test Armour",
+        type="Human Armour",
+        stats={"Weight": 10},
+        craft_recipe={
+            "craft_type": "Armor",
+            "req_skill": 5,
+            "item_type": "Shoes",
+            "materials": {
+                "general": [
+                    ["Metal", 20],
+                    ["Wood", 15],
+                    ["Leather", 10],
+                    ["Bone", 20],
+                    ["Metal", 20],
+                    ["Wood", 15],
+                    ["Leather", 10],
+                    ["Bone", 20],
+                ],
+            },
+        },
+    )
+
+    result = parser.parse_stats(456, "item", item_html)
+
+    assert result["craft_materials"]["general"] == {
+        "Metal": 20,
+        "Wood": 15,
+        "Leather": 10,
+        "Bone": 20,
+    }
+
+
+def test_parse_item_stats_ignores_alternate_generic_recipes(caplog):
+    item_html = _env.get_template("item.html.jinja").render(
+        name="Test Armour",
+        type="Human Armour",
+        stats={"Weight": 10},
+        craft_recipe={
+            "craft_type": "Armor",
+            "req_skill": 5,
+            "item_type": "Shoes",
+            "materials": {
+                "general": [
+                    ["Metal", 10],
+                    ["Wood", 10],
+                    ["Leather", 5],
+                    ["Bone", 5],
+                    ["Metal", 12],
+                    ["Wood", 3],
+                    ["Leather", 5],
+                    ["Bone", 5],
+                ],
+            },
+        },
+    )
+
+    result = parser.parse_stats(457, "item", item_html)
+
+    assert "craft_materials" not in result
+    assert "Item 457 has alternate craft recipes" in caplog.text
+
+
+def test_parse_item_stats_ignores_neutral_item_recipes(caplog):
+    item_html = _env.get_template("item.html.jinja").render(
+        name="Test Armour",
+        type="Human & Devil Armour",
+        stats={"Weight": 10},
+        craft_recipe={
+            "craft_type": "Armor",
+            "req_skill": 5,
+            "item_type": "Shoes",
+            "materials": {
+                "general": [["Metal", 1]],
+            },
+        },
+    )
+
+    result = parser.parse_stats(458, "item", item_html)
+
+    assert "craft_materials" not in result
+    assert "Neutral item 458 has craft recipe, ignoring." in caplog.text

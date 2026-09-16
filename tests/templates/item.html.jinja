@@ -21,8 +21,10 @@
               <span class="itemdata">{{ type }}</span>
               <span class="itemrace"></span>
               <span class="itemname">{{ name }}<span class="orange"></span></span>
-              <span class="itemdata">{% for label, value in stats.items() %}<br>{{ label }} : {{ value }}{% endfor %}</span>
-              <span class="itemreq">{% for label, value in (reqs or {}).items() %}<br>Req. {{ label }} : {{ value }}{% endfor %}</span>
+              <span class="itemdata">{% for label, value in stats.items() %}<br>{{ label }} : {{ value }}{% endfor
+                %}</span>
+              <span class="itemreq">{% for label, value in (reqs or {}).items() %}<br>Req. {{ label }} : {{ value }}{%
+                endfor %}</span>
             </span>
           </div>
         </div>
@@ -32,6 +34,41 @@
       <div class="name">Used To Upgrade</div>
       <ul>
         {% if upgrade %}{{ upgrade }}{% else %}<li>Not used to upgrade an item</li>{% endif %}
+      </ul>
+    </div>
+    <div class="managebox" id="itemcraftrecipe">
+      <div class="name">Crafting Recipe</div>
+      <ul>
+        {% if craft_recipe is not defined %}
+        <li>Cannot be crafted</li>
+
+        {% else %}
+        <span class="craft-skill-req">Req. {{ craft_recipe.craft_type }}&nbsp;Skill&nbsp;:&nbsp;{{
+          craft_recipe.req_skill }}</span>
+        <br>
+        <span class="craft-type">{{ craft_recipe.item_type }}</span>
+
+        {% if craft_recipe.materials.general %}
+        {% for name, quantity in craft_recipe.materials.general %}
+        <li>
+          <span class="item-general-count">{{ quantity }}x&nbsp;</span>
+          <div class="item-info">{{ name }}<br></div>
+        </li>
+        {% endfor %}
+        {% elif craft_recipe.materials.specific %}
+        {% for id, name, quantity in craft_recipe.materials.specific %}
+        <li>
+          <div class="icon-wrapper">
+            <span class="item-count">{{ quantity }}</span>
+          </div>
+          <div class="item-info">
+            <a href="https://baseurl/Item.asp?id={{ id }}">{{ name }}</a>
+            <br>
+          </div>
+        </li>
+        {% endfor %}
+        {% endif %}
+        {% endif %}
       </ul>
     </div>
   </div>

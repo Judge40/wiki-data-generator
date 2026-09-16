@@ -7,7 +7,10 @@ import config
 from db_model import (
     Armour,
     Base,
+    CraftItemTypeEnum,
+    CraftSkillTypeEnum,
     Item,
+    ItemRecipe,
     ItemTypeEnum,
     Map,
     Monster,
@@ -41,18 +44,56 @@ def _filter_to_columns(model, data: dict) -> dict:
     return {key: value for key, value in data.items() if key in columns}
 
 
+def _map_specific_materials(specific_materials: dict) -> dict:
+    """Convert a dict of specific materials into the format expected by ItemRecipe."""
+    mapped = {}
+    for i, (material_id, quantity) in enumerate(specific_materials.items(), start=1):
+        mapped[f"specific_id_{i}"] = material_id
+        mapped[f"specific_quantity_{i}"] = quantity
+
+    return mapped
+
+
 def save_item(item_data: dict) -> None:
     """Upsert parsed item stats."""
+    craft_materials = item_data.get("craft_materials", {})
+    general_materials = {
+        material.lower(): quantity
+        for material, quantity in craft_materials.get("general", {}).items()
+    }
+
     item_type = ItemTypeEnum(item_data["type"])
+    craft_skill_type = (
+        CraftSkillTypeEnum(item_data["craft_skill_type"])
+        if item_data.get("craft_skill_type")
+        else None
+    )
+    craft_item_type = (
+        CraftItemTypeEnum(item_data["craft_item_type"])
+        if item_data.get("craft_item_type")
+        else None
+    )
     item_data = {
         **item_data,
         "race": RaceEnum(item_data["race"]),
         "type": item_type,
+        "craft_skill_type": craft_skill_type,
+        "craft_item_type": craft_item_type,
     }
     model = ITEM_TYPE_MODELS.get(item_type, Item)
     item_data = _filter_to_columns(model, item_data)
     with Session(engine) as session:
-        session.merge(model(**item_data))
+        item = session.merge(model(**item_data))
+        session.query(ItemRecipe).filter_by(item_id=item.id).delete()
+
+        if craft_skill_type:
+            session.add(
+                ItemRecipe(
+                    item_id=item.id,
+                    **general_materials,
+                    **_map_specific_materials(craft_materials.get("specific", {})),
+                )
+            )
         session.commit()
     log.debug("Saved item %s", item_data["id"])
 
