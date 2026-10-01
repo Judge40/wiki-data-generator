@@ -8,7 +8,8 @@ dependencies = [
     "requests-cache>=1.2",
     "beautifulsoup4>=4.12",
     "lxml>=5.0",
-    "sqlalchemy>=2.0"
+    "sqlalchemy>=2.0",
+    "luadata>=1.0"
 ]
 
 [dependency-groups]
@@ -19,7 +20,7 @@ dev = [
 ]
 
 [tool.setuptools]
-py-modules = ["cli", "config", "fetcher", "orchestrator", "parser"]
+py-modules = ["cli", "config", "exporter", "fetcher", "orchestrator", "parser"]
 
 [build-system]
 requires = ["setuptools>=68"]

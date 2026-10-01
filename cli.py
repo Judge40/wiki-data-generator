@@ -2,7 +2,7 @@ import argparse
 import json
 import logging
 
-from orchestrator import enrich_monsters, scrape, scrape_many
+from orchestrator import enrich_monsters, export_entities, scrape, scrape_many
 
 log = logging.getLogger("cli")
 
@@ -56,6 +56,15 @@ enrich_parser = subparsers.add_parser(
     "enrich", help="Enrich the fetched data using both item and monster information."
 )
 
+export_parser = subparsers.add_parser(
+    "export", help="Export entities to a Lua data file for the wiki"
+)
+export_parser.add_argument(
+    "entity_type",
+    choices=["monsters"],
+    help="The type of entity to export",
+)
+
 if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO,
@@ -67,6 +76,11 @@ if __name__ == "__main__":
 
     if args.command == "enrich":
         enrich_monsters()
+        raise SystemExit(0)
+
+    if args.command == "export":
+        path = export_entities(args.entity_type)
+        log.info("Exported %s to %s", args.entity_type, path)
         raise SystemExit(0)
 
     if args.command in ("item", "monster"):

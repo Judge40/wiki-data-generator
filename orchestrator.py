@@ -1,10 +1,17 @@
 import logging
+from pathlib import Path
 
 import config
 from db_model import Monster, MonsterTypeEnum, MoralEnum, RaceEnum
+from exporter import export_monsters
 from fetcher import fetch
 from parser import parse_stats
-from repository import get_all_monsters, save_item, save_monster, update_monster
+from repository import (
+    get_all_monsters,
+    save_item,
+    save_monster,
+    update_monster,
+)
 
 log = logging.getLogger("orchestrator")
 
@@ -141,6 +148,16 @@ def _get_monster_type(monster: Monster) -> MonsterTypeEnum:
         return MonsterTypeEnum.NPC
 
     return MonsterTypeEnum.MONSTER
+
+
+EXPORTERS = {
+    "monsters": lambda: export_monsters(get_all_monsters()),
+}
+
+
+def export_entities(entity_type: str) -> Path:
+    """Fetch all entities of entity_type and export them to a Lua data file."""
+    return EXPORTERS[entity_type]()
 
 
 def enrich_monsters():
