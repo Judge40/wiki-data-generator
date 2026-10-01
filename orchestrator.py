@@ -120,10 +120,24 @@ def _get_monster_race(monster: Monster) -> RaceEnum | None:
 
 
 def _get_monster_type(monster: Monster) -> MonsterTypeEnum:
-    if any(item.item_id in config.BOSS_ONLY_ITEM_IDS for item in monster.monster_items):
+    if len(monster.maps) == 0:
+        return MonsterTypeEnum.EVENT
+
+    if monster.id in config.BOSS_OVERRIDE_IDS or any(
+        item.item_id in config.BOSS_ONLY_ITEM_IDS for item in monster.monster_items
+    ):
         return MonsterTypeEnum.BOSS
 
-    if monster.moral == MoralEnum.NONE and not monster.monster_items:
+    if monster.id in config.NPC_OVERRIDE_IDS or (
+        (
+            monster.moral == MoralEnum.NONE
+            or any(
+                all(getattr(monster, stat) == value for stat, value in template.items())
+                for template in config.NPC_STAT_TEMPLATES
+            )
+        )
+        and not monster.monster_items
+    ):
         return MonsterTypeEnum.NPC
 
     return MonsterTypeEnum.MONSTER

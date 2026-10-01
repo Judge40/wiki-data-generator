@@ -52,8 +52,9 @@ WEAPON_TYPES = {
 
 
 class MonsterTypeEnum(enum.Enum):
-    MONSTER = "Monster"
     BOSS = "Boss"
+    EVENT = "Event"
+    MONSTER = "Monster"
     NPC = "NPC"
 
 

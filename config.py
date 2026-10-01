@@ -9,6 +9,8 @@ from importlib.metadata import PackageNotFoundError, version
 
 import dotenv
 
+from db_model import MoralEnum
+
 dotenv.load_dotenv()
 
 try:
@@ -59,3 +61,17 @@ IGNORED_MONSTER_IDS = {2371}
 # Monster enrichment configuration
 # --------------------------------------------------------------------------------------
 BOSS_ONLY_ITEM_IDS = {5909}
+BOSS_OVERRIDE_IDS = {285, 1075, 1103, 4282, 4321, 4322}
+NPC_OVERRIDE_IDS = {202, 204, 4334}
+# Monsters whose stats exactly match any of these templates are NPCs. Keys are Monster attributes.
+NPC_STAT_TEMPLATES = [
+    {
+        "hp": 20,
+        "mp": 12,
+        "strength": 10,
+        "intelligence": 23,
+        "wisdom": 10,
+        "dexterity": 10,
+        "moral": MoralEnum.VERY_POOR,
+    },
+]
