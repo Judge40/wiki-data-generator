@@ -10,7 +10,16 @@ Usage:
 from sqlalchemy import String, cast, func, literal, select, text
 
 import config
-from db_model import Armour, Item, Map, Monster, MonsterItem, MonsterMap, Weapon
+from db_model import (
+    Armour,
+    Item,
+    Map,
+    Monster,
+    MonsterItem,
+    MonsterMap,
+    Upgrade,
+    Weapon,
+)
 from repository import engine
 
 
@@ -63,6 +72,7 @@ monster_drop_view = (
     .join(MonsterItem.item)
 )
 
+upgrade_view = select(Upgrade, item_url.label("url"))
 
 weapon_view = select(Weapon, item_url.label("url"))
 
@@ -71,4 +81,5 @@ if __name__ == "__main__":
     create_view("armour_view", armour_view)
     create_view("monster_view", monster_view)
     create_view("monster_drop_view", monster_drop_view)
+    create_view("upgrade_view", upgrade_view)
     create_view("weapon_view", weapon_view)

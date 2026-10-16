@@ -28,6 +28,12 @@
         </div>
       </div>
     </div>
+    <div class="managebox" id="itemupgradeused">
+      <div class="name">Used To Upgrade</div>
+      <ul>
+        {% if upgrade %}{{ upgrade }}{% else %}<li>Not used to upgrade an item</li>{% endif %}
+      </ul>
+    </div>
   </div>
 </body>
 

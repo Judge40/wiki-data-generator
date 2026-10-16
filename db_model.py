@@ -39,6 +39,7 @@ class ItemTypeEnum(enum.Enum):
     SUNDRY = "Sundry"
     SWORD = "Sword"
     UNTRADEABLE = "Untradeable"
+    UPGRADE = "Upgrade"
 
 
 WEAPON_TYPES = {
@@ -77,6 +78,7 @@ class Item(Base):
         "polymorphic_on": case(
             (type.in_(WEAPON_TYPES), "WEAPON"),
             (type == ItemTypeEnum.ARMOUR, "ARMOUR"),
+            (type == ItemTypeEnum.UPGRADE, "UPGRADE"),
             else_="ITEM",
         ),
         "polymorphic_identity": "ITEM",
@@ -101,9 +103,7 @@ class Armour(Item, Equipment):
     defense_min: Mapped[int] = mapped_column(nullable=True)
     defense_max: Mapped[int] = mapped_column(nullable=True)
 
-    __mapper_args__: ClassVar[dict[str, Any]] = {
-        "polymorphic_identity": "ARMOUR",
-    }
+    __mapper_args__: ClassVar[dict[str, Any]] = {"polymorphic_identity": "ARMOUR"}
 
 
 class Weapon(Item, Equipment):
@@ -116,6 +116,16 @@ class Weapon(Item, Equipment):
     required_skill: Mapped[int] = mapped_column(nullable=True)
 
     __mapper_args__: ClassVar[dict[str, Any]] = {"polymorphic_identity": "WEAPON"}
+
+
+class Upgrade(Item):
+    __tablename__ = "upgrade"
+
+    id: Mapped[int] = mapped_column(ForeignKey("item.id"), primary_key=True)
+    max_upgrades: Mapped[int] = mapped_column(nullable=False)
+    requires_skill: Mapped[bool] = mapped_column(nullable=False)
+
+    __mapper_args__: ClassVar[dict[str, Any]] = {"polymorphic_identity": "UPGRADE"}
 
 
 class Map(Base):

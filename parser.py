@@ -10,6 +10,9 @@ MONSTER_INFO_SELECTOR = "#pagecontent #monsterinfo"
 MONSTER_ITEMS_SELECTOR = "#pagecontent #monsteritems"
 MONSTER_MODEL_SELECTOR = "#pagecontent #monstermodel"
 NAME_SELECTOR = f"{MONSTER_INFO_SELECTOR} .name"
+UPGRADE_INFO_SELECTOR = "#pagecontent #itemupgradeused"
+
+NOT_UPGRADE_TEXT = "not used to upgrade"
 
 NEUTRAL_RACE = "Human & Devil"
 
@@ -71,6 +74,7 @@ def _parse_item_stats(id: int, soup: BeautifulSoup) -> dict:
         raise RuntimeError(f"Unrecognised item {id} race/type text: {item_type!r}")
 
     race = "Neutral" if match.group(1) == NEUTRAL_RACE else match.group(1)
+    item_type = match.group(2)
 
     stats = _parse_label_value_block(itemdata_elements[1])
     if "weight" not in stats:
@@ -80,17 +84,45 @@ def _parse_item_stats(id: int, soup: BeautifulSoup) -> dict:
     reqs = _parse_label_value_block(reqs_el)
     reqs = {ITEM_REQ_FIELDS[k]: v for k, v in reqs.items() if k in ITEM_REQ_FIELDS}
 
+    max_upgrades, requires_skill = _parse_upgrade_info(id, soup)
+
+    if max_upgrades is not None and requires_skill is not None:
+        item_type = "Upgrade"
+
     result = {
         "id": id,
         "name": name_el.get_text(strip=True),
         "race": race,
-        "type": match.group(2),
+        "type": item_type,
+        "max_upgrades": max_upgrades,
+        "requires_skill": requires_skill,
     }
     result.update(stats.items())
     result.update(reqs.items())
 
     log.debug("Parsed item %s: %r", id, result)
     return result
+
+
+def _parse_upgrade_info(id: int, soup: BeautifulSoup) -> tuple[int | None, bool | None]:
+    """Return (max_upgrades, requires_skill), or (None, None) if not an upgrade."""
+    list_els = soup.select(f"{UPGRADE_INFO_SELECTOR} ul")
+    text = " ".join(el.get_text(" ", strip=True) for el in list_els).strip()
+    if not text or NOT_UPGRADE_TEXT in text.lower():
+        return None, None
+
+    max_match = re.search(r"up to \+(\d+)", text, re.IGNORECASE)
+    if max_match is None:
+        raise RuntimeError(f"Unrecognised item {id} upgrade max text: {text!r}")
+
+    if re.search(r"\buses a skill\b", text, re.IGNORECASE):
+        requires_skill = True
+    elif re.search(r"\bunaffected by crafting skills?\b", text, re.IGNORECASE):
+        requires_skill = False
+    else:
+        raise RuntimeError(f"Unrecognised item {id} upgrade skill text: {text!r}")
+
+    return int(max_match.group(1)), requires_skill
 
 
 def _parse_monster_stats(id: int, soup: BeautifulSoup) -> dict:
@@ -139,9 +171,7 @@ def _parse_monster_stats(id: int, soup: BeautifulSoup) -> dict:
         "offensive_dexterity": stats["offensive_dex"],
         "defensive_dexterity": stats["defensive_dex"],
         "moral": stats["moral"],
-        "model_id": _extract_int(model_img_el.get("src", ""))
-        if model_img_el
-        else None,
+        "model_id": _extract_int(model_img_el.get("src", "")) if model_img_el else None,
         "maps": [location.get_text(strip=True) for location in locations],
         "drops": _parse_monster_drops(id, soup),
     }

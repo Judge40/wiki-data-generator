@@ -14,6 +14,7 @@ from db_model import (
     MonsterItem,
     MoralEnum,
     RaceEnum,
+    Upgrade,
     Weapon,
 )
 
@@ -30,6 +31,7 @@ ITEM_TYPE_MODELS = {
     ItemTypeEnum.SPEAR: Weapon,
     ItemTypeEnum.STAFF: Weapon,
     ItemTypeEnum.SWORD: Weapon,
+    ItemTypeEnum.UPGRADE: Upgrade,
 }
 
 

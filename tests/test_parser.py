@@ -8,6 +8,11 @@ import parser
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 _env = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATES_DIR))
 
+SKILL_UPGRADE_TEXT = "Uses a skill for success and upgrades up to +5."
+STANDARD_UPGRADE_TEXT = (
+    "Upgrades up to +8 with standard success rates (unaffected by crafting skills)."
+)
+
 
 def _render_monster(overrides: dict | None = None) -> str:
     """Render monster.html.jinja with default stats, overridden as needed per-test."""
@@ -116,7 +121,7 @@ def test_parse_item_stats_returns_expected_dict_when_type_is_armour():
 
     result = parser.parse_stats(1, "item", item_html)
 
-    assert len(result) == 9
+    assert len(result) == 11
     assert result["id"] == 1
     assert result["name"] == "Test Armour"
     assert result["race"] == "Human"
@@ -146,7 +151,7 @@ def test_parse_item_stats_returns_expected_dict_when_type_is_weapon():
 
     result = parser.parse_stats(1, "item", item_html)
 
-    assert len(result) == 11
+    assert len(result) == 13
     assert result["id"] == 1
     assert result["name"] == "Test Weapon"
     assert result["race"] == "Human"
@@ -169,7 +174,7 @@ def test_parse_item_stats_returns_expected_dict_when_type_is_misc():
 
     result = parser.parse_stats(1, "item", item_html)
 
-    assert len(result) == 5
+    assert len(result) == 7
     assert result["id"] == 1
     assert result["name"] == "Test Misc Item"
     assert result["race"] == "Human"
@@ -202,6 +207,56 @@ def test_parse_item_stats_includes_requirements():
     assert result["required_wisdom"] == 50
     assert result["required_dexterity"] == 60
     assert result["required_constitution"] == 70
+
+
+def test_parse_item_stats_not_including_upgrade_info_when_not_upgrade_type():
+    item_html = _env.get_template("item.html.jinja").render(
+        name="Test Material",
+        type="Human Material",
+        stats={
+            "Weight": 10,
+        },
+    )
+
+    result = parser.parse_stats(1, "item", item_html)
+
+    assert result["type"] == "Material"
+    assert result["max_upgrades"] is None
+    assert result["requires_skill"] is None
+
+
+def test_parse_item_stats_includes_upgrade_info_when_skill_based_upgrade_type():
+    item_html = _env.get_template("item.html.jinja").render(
+        name="Test Material",
+        type="Human Material",
+        stats={
+            "Weight": 10,
+        },
+        upgrade=SKILL_UPGRADE_TEXT,
+    )
+
+    result = parser.parse_stats(1, "item", item_html)
+
+    assert result["type"] == "Upgrade"
+    assert result["max_upgrades"] == 5
+    assert result["requires_skill"] is True
+
+
+def test_parse_item_stats_includes_upgrade_info_when_not_skill_based_upgrade_type():
+    item_html = _env.get_template("item.html.jinja").render(
+        name="Test Material",
+        type="Human Material",
+        stats={
+            "Weight": 10,
+        },
+        upgrade=STANDARD_UPGRADE_TEXT,
+    )
+
+    result = parser.parse_stats(1, "item", item_html)
+
+    assert result["type"] == "Upgrade"
+    assert result["max_upgrades"] == 8
+    assert result["requires_skill"] is False
 
 
 def test_parse_monster_stats_raises_when_page_is_empty():
