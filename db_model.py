@@ -107,6 +107,11 @@ class MonsterTypeEnum(enum.Enum):
     NPC = "NPC"
 
 
+class ItemSourceEnum(enum.Enum):
+    CRAFTED = "Crafted"
+    DROP = "Drop"
+
+
 class Item(Base):
     __tablename__ = "item"
 
@@ -171,6 +176,15 @@ class ItemRecipe(Base):
     specific_quantity_5: Mapped[int] = mapped_column(nullable=True)
 
     item: Mapped["Item"] = relationship(back_populates="recipes")
+
+
+class ItemSource(Base):
+    __tablename__ = "item_source"
+
+    item_id: Mapped[int] = mapped_column(ForeignKey(Item.id), primary_key=True)
+    source: Mapped[ItemSourceEnum] = mapped_column(
+        Enum(ItemSourceEnum, create_constraint=True), primary_key=True
+    )
 
 
 class Equipment:

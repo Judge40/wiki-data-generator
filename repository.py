@@ -11,6 +11,8 @@ from db_model import (
     CraftSkillTypeEnum,
     Item,
     ItemRecipe,
+    ItemSource,
+    ItemSourceEnum,
     ItemTypeEnum,
     Map,
     Monster,
@@ -38,6 +40,9 @@ ITEM_TYPE_MODELS = {
 }
 
 
+PARSED_ITEM_SOURCES = (ItemSourceEnum.CRAFTED, ItemSourceEnum.DROP)
+
+
 def _filter_to_columns(model, data: dict) -> dict:
     """Drop any keys that aren't mapped columns on the given model."""
     columns = {c.key for c in model.__mapper__.columns}
@@ -56,6 +61,7 @@ def _map_specific_materials(specific_materials: dict) -> dict:
 
 def save_item(item_data: dict) -> None:
     """Upsert parsed item stats."""
+    sources = [ItemSourceEnum(s) for s in item_data.get("sources", [])]
     craft_materials = item_data.get("craft_materials", {})
     general_materials = {
         material.lower(): quantity
@@ -94,6 +100,14 @@ def save_item(item_data: dict) -> None:
                     **_map_specific_materials(craft_materials.get("specific", {})),
                 )
             )
+
+        # Only the item parser's sources are replaced; other owners' rows are kept.
+        session.query(ItemSource).filter(
+            ItemSource.item_id == item.id,
+            ItemSource.source.in_(PARSED_ITEM_SOURCES),
+        ).delete(synchronize_session=False)
+        for source in sources:
+            session.add(ItemSource(item_id=item.id, source=source))
         session.commit()
     log.debug("Saved item %s", item_data["id"])
 

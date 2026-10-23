@@ -8,6 +8,7 @@ log = logging.getLogger("parser")
 ITEM_INFO_SELECTOR = "#pagecontent .iteminfo"
 MONSTER_INFO_SELECTOR = "#pagecontent #monsterinfo"
 MONSTER_ITEMS_SELECTOR = "#pagecontent #monsteritems"
+ITEM_DROP_SELECTOR = f"{MONSTER_ITEMS_SELECTOR} li"
 MONSTER_MODEL_SELECTOR = "#pagecontent #monstermodel"
 CRAFT_RECIPE_SELECTOR = "#pagecontent #itemcraftrecipe"
 NAME_SELECTOR = f"{MONSTER_INFO_SELECTOR} .name"
@@ -107,6 +108,14 @@ def _parse_item_stats(id: int, soup: BeautifulSoup) -> dict:
             log.warning("Neutral item %s has craft recipe, ignoring.", id)
         else:
             result.update(craft_recipe)
+
+    sources = []
+    if "craft_materials" in result:
+        sources.append("Crafted")
+    if soup.select_one(ITEM_DROP_SELECTOR) is not None:
+        sources.append("Drop")
+    if sources:
+        result["sources"] = sources
 
     log.debug("Parsed item %s: %r", id, result)
     return result

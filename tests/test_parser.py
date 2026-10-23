@@ -495,6 +495,66 @@ def test_parse_item_stats_ignores_alternate_generic_recipes(caplog):
     assert "Item 457 has alternate craft recipes" in caplog.text
 
 
+def test_parse_item_stats_has_no_sources_when_not_crafted_or_dropped():
+    item_html = _env.get_template("item.html.jinja").render(
+        name="Test Item", type="Human Sundry", stats={"Weight": 5}
+    )
+
+    result = parser.parse_stats(1, "item", item_html)
+
+    assert "sources" not in result
+
+
+def test_parse_item_stats_includes_drop_source_when_monster_listed():
+    item_html = _env.get_template("item.html.jinja").render(
+        name="Test Item",
+        type="Human Sundry",
+        stats={"Weight": 5},
+        drops=[{"map": "Map 1", "monster_id": 10}],
+    )
+
+    result = parser.parse_stats(1, "item", item_html)
+
+    assert result["sources"] == ["Drop"]
+
+
+def test_parse_item_stats_includes_crafted_source_when_recipe_listed():
+    item_html = _env.get_template("item.html.jinja").render(
+        name="Test Item",
+        type="Human Sundry",
+        stats={"Weight": 5},
+        craft_recipe={
+            "craft_type": "Armor",
+            "req_skill": 5,
+            "item_type": "Shoes",
+            "materials": {"general": [["Leather", 3]]},
+        },
+    )
+
+    result = parser.parse_stats(1, "item", item_html)
+
+    assert result["sources"] == ["Crafted"]
+
+
+def test_parse_item_stats_includes_crafted_and_drop_sources():
+    item_html = _env.get_template("item.html.jinja").render(
+        name="Test Armour",
+        type="Human Armour",
+        stats={"Weight": 10},
+        craft_recipe={
+            "craft_type": "Armor",
+            "req_skill": 5,
+            "item_type": "Shoes",
+            "materials": {"general": [["Leather", 3]]},
+        },
+        drops=[{"map": "Map 1", "monster_id": 10}],
+    )
+
+    result = parser.parse_stats(1, "item", item_html)
+
+    assert result["sources"] == ["Crafted", "Drop"]
+
+
 def test_parse_item_stats_ignores_neutral_item_recipes(caplog):
     item_html = _env.get_template("item.html.jinja").render(
         name="Test Armour",

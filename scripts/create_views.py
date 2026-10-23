@@ -13,6 +13,7 @@ import config
 from db_model import (
     Armour,
     Item,
+    ItemSource,
     Map,
     Monster,
     MonsterItem,
@@ -49,7 +50,14 @@ monster_maps = (
     .scalar_subquery()
 )
 
-armour_view = select(Armour, item_url.label("url"))
+item_sources = (
+    select(func.group_concat(ItemSource.source, ", "))
+    .where(ItemSource.item_id == Item.id)
+    .correlate(Item)
+    .scalar_subquery()
+)
+
+armour_view = select(Armour, item_sources.label("sources"), item_url.label("url"))
 
 
 monster_view = select(Monster, monster_maps.label("maps"), monster_url.label("url"))
@@ -72,9 +80,9 @@ monster_drop_view = (
     .join(MonsterItem.item)
 )
 
-upgrade_view = select(Upgrade, item_url.label("url"))
+upgrade_view = select(Upgrade, item_sources.label("sources"), item_url.label("url"))
 
-weapon_view = select(Weapon, item_url.label("url"))
+weapon_view = select(Weapon, item_sources.label("sources"), item_url.label("url"))
 
 
 if __name__ == "__main__":

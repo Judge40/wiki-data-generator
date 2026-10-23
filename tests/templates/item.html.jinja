@@ -30,12 +30,6 @@
         </div>
       </div>
     </div>
-    <div class="managebox" id="itemupgradeused">
-      <div class="name">Used To Upgrade</div>
-      <ul>
-        {% if upgrade %}{{ upgrade }}{% else %}<li>Not used to upgrade an item</li>{% endif %}
-      </ul>
-    </div>
     <div class="managebox" id="itemcraftrecipe">
       <div class="name">Crafting Recipe</div>
       <ul>
@@ -69,6 +63,28 @@
         {% endfor %}
         {% endif %}
         {% endif %}
+      </ul>
+    </div>
+    <div class="managebox" id="itemupgradeused">
+      <div class="name">Used To Upgrade</div>
+      <ul>
+        {% if upgrade %}{{ upgrade }}{% else %}<li>Not used to upgrade an item</li>{% endif %}
+      </ul>
+    </div>
+    <div class="managebox" id="monsteritems">
+      <a class="title" href id="randomdrop">
+        <span> {{ name }} Drop file</span>
+      </a>
+      <ul>
+        {% for drop in (drops or []) %}
+        <span class="mapname">{{ drop.map }}</span>
+        <li>
+          <span class="monstername">
+            <a href="https://baseurl/Monster.asp?id={{ drop.monster_id }}">Monster {{ drop.monster_id }}</a>
+          </span>
+          <div class="drop-info"><span>30.00%</span></div>
+        </li>
+        {% endfor %}
       </ul>
     </div>
   </div>
