@@ -103,14 +103,10 @@ def _parse_item_stats(id: int, soup: BeautifulSoup) -> dict:
     result.update(stats.items())
     result.update(reqs.items())
     if craft_recipe:
-        if race == "Neutral":
-            # TODO: Neutral items have multiple recipes, which are not yet handled.
-            log.warning("Neutral item %s has craft recipe, ignoring.", id)
-        else:
-            result.update(craft_recipe)
+        result.update(craft_recipe)
 
     sources = []
-    if "craft_materials" in result:
+    if "craft_recipes" in result:
         sources.append("Crafted")
     if soup.select_one(ITEM_DROP_SELECTOR) is not None:
         sources.append("Drop")
@@ -319,11 +315,28 @@ def _expand_ranges(stats: dict) -> dict:
     return result
 
 
-def _parse_craft_materials(id: int, soup: BeautifulSoup) -> tuple[dict, dict]:
+def _split_on_first_repeat(id: int, entries: list[tuple]) -> list[list[tuple]] | None:
+    """Split (key, quantity) entries into equal-length recipes at the first repeated key.
+
+    Returns None if the entries can't be split evenly.
+    """
+    keys = [key for key, _ in entries]
+    length = next((i for i, key in enumerate(keys) if key in keys[:i]), None)
+    if length is None:
+        return [entries] if entries else []
+
+    if len(entries) % length != 0:
+        log.warning("Item %s has uneven craft recipes, ignoring.", id)
+        return None
+    return [entries[i : i + length] for i in range(0, len(entries), length)]
+
+
+def _parse_craft_materials(id: int, soup: BeautifulSoup) -> list[dict]:
     """
     Parse crafting materials from item page.
 
-    Returns a tuple of two dicts: (general_materials, specific_materials).
+    Returns a list of recipes, each a dict with "general" and "specific" material dicts.
+    Identical recipes are collapsed; an unsplittable list returns [].
     """
     general_material_entries = []
     general_elements = soup.select(
@@ -336,14 +349,7 @@ def _parse_craft_materials(id: int, soup: BeautifulSoup) -> tuple[dict, dict]:
         if name and quantity:
             general_material_entries.append((name, _extract_int(quantity)))
 
-    general_material_entries = _collapse_duplicate_craft_materials(
-        id, general_material_entries
-    )
-    general_materials = (
-        dict(general_material_entries) if general_material_entries is not None else {}
-    )
-
-    specific_materials = {}
+    specific_entries = []
     specific_elements = soup.select(f"{CRAFT_RECIPE_SELECTOR} li:has(span.item-count)")
 
     for el in specific_elements:
@@ -356,28 +362,27 @@ def _parse_craft_materials(id: int, soup: BeautifulSoup) -> tuple[dict, dict]:
         quantity = _select_text(el, "span.item-count")
 
         if item_id and quantity:
-            specific_materials[item_id] = _extract_int(quantity)
+            specific_entries.append((item_id, _extract_int(quantity)))
 
-    return general_materials, specific_materials
-
-
-def _collapse_duplicate_craft_materials(
-    id: int, materials: list[tuple[str, int | None]]
-) -> list[tuple[str, int | None]] | None:
-    """Collapse identical repeated recipe blocks, or return None for alternates."""
-    material_names = [name for name, _ in materials]
-    if len(material_names) == len(set(material_names)):
-        return materials
-
-    recipe_length = len(materials) // 2
-    if (
-        len(materials) % 2 == 0
-        and materials[:recipe_length] == materials[recipe_length:]
+    general_recipes = _split_on_first_repeat(id, general_material_entries)
+    specific_recipes = _split_on_first_repeat(id, specific_entries)
+    if general_recipes is None or specific_recipes is None:
+        return []
+    if general_recipes and specific_recipes and len(general_recipes) != len(
+        specific_recipes
     ):
-        return materials[:recipe_length]
+        log.warning("Item %s has mismatched craft recipes, ignoring.", id)
+        return []
 
-    log.warning("Item %s has alternate craft recipes, ignoring.", id)
-    return None
+    recipes = []
+    for i in range(max(len(general_recipes), len(specific_recipes))):
+        recipe = {
+            "general": dict(general_recipes[i]) if general_recipes else {},
+            "specific": dict(specific_recipes[i]) if specific_recipes else {},
+        }
+        if recipe not in recipes:
+            recipes.append(recipe)
+    return recipes
 
 
 def _parse_craft_recipe(id: int, soup: BeautifulSoup) -> dict | None:
@@ -388,7 +393,7 @@ def _parse_craft_recipe(id: int, soup: BeautifulSoup) -> dict | None:
     - craft_skill_type: str (Accessory, Armor, Cooking, Potion, Weapon)
     - craft_skill: int (required skill level)
     - craft_item_type: str (item type, e.g., Shoes, Ring)
-    - craft_materials: dict with keys "general" and "specific", each mapping to a dict of materials and quantities
+    - craft_recipes: list of dicts with keys "general" and "specific", each mapping to a dict of materials and quantities
 
     Returns None if item cannot be crafted.
     """
@@ -417,17 +422,15 @@ def _parse_craft_recipe(id: int, soup: BeautifulSoup) -> dict | None:
     if skill_type is None:
         return None
 
-    req_materials = _parse_craft_materials(id, soup)
-
-    if not req_materials[0] and not req_materials[1]:
+    recipes = [
+        r for r in _parse_craft_materials(id, soup) if r["general"] or r["specific"]
+    ]
+    if not recipes:
         return None
 
     return {
         "craft_skill_type": skill_type,
         "craft_skill": req_skill,
         "craft_item_type": item_type,
-        "craft_materials": {
-            "general": req_materials[0],
-            "specific": req_materials[1],
-        },
+        "craft_recipes": recipes,
     }

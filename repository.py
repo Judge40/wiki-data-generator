@@ -62,11 +62,7 @@ def _map_specific_materials(specific_materials: dict) -> dict:
 def save_item(item_data: dict) -> None:
     """Upsert parsed item stats."""
     sources = [ItemSourceEnum(s) for s in item_data.get("sources", [])]
-    craft_materials = item_data.get("craft_materials", {})
-    general_materials = {
-        material.lower(): quantity
-        for material, quantity in craft_materials.get("general", {}).items()
-    }
+    craft_recipes = item_data.get("craft_recipes", [])
 
     item_type = ItemTypeEnum(item_data["type"])
     craft_skill_type = (
@@ -93,13 +89,18 @@ def save_item(item_data: dict) -> None:
         session.query(ItemRecipe).filter_by(item_id=item.id).delete()
 
         if craft_skill_type:
-            session.add(
-                ItemRecipe(
-                    item_id=item.id,
-                    **general_materials,
-                    **_map_specific_materials(craft_materials.get("specific", {})),
+            for recipe in craft_recipes:
+                general_materials = {
+                    material.lower(): quantity
+                    for material, quantity in recipe.get("general", {}).items()
+                }
+                session.add(
+                    ItemRecipe(
+                        item_id=item.id,
+                        **general_materials,
+                        **_map_specific_materials(recipe.get("specific", {})),
+                    )
                 )
-            )
 
         # Only the item parser's sources are replaced; other owners' rows are kept.
         session.query(ItemSource).filter(
