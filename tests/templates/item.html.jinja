@@ -25,6 +25,7 @@
                 %}</span>
               <span class="itemreq">{% for label, value in (reqs or {}).items() %}<br>Req. {{ label }} : {{ value }}{%
                 endfor %}</span>
+              <span class="orange">{% for upgrade in (upgrades or []) %}<br>{{ upgrade }}{% endfor %}</span>
             </span>
           </div>
         </div>

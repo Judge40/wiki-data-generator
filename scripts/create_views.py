@@ -1,5 +1,6 @@
 """
-Creates/refreshes weapon_view and armour_view for browsing with DB tools.
+Creates/refreshes equipment, armour, weapon, upgrade, and monster views for browsing
+with DB tools.
 Not wired into the app - just run this whenever you want the views to exist
 or need to pick up a schema change.
 
@@ -12,6 +13,7 @@ from sqlalchemy import String, cast, func, literal, select, text
 import config
 from db_model import (
     Armour,
+    Equipment,
     Item,
     ItemSource,
     Map,
@@ -59,6 +61,11 @@ item_sources = (
 
 armour_view = select(Armour, item_sources.label("sources"), item_url.label("url"))
 
+equipment_view = select(
+    Equipment,
+    item_sources.label("sources"),
+    item_url.label("url"),
+)
 
 monster_view = select(Monster, monster_maps.label("maps"), monster_url.label("url"))
 monster_drop_view = (
@@ -87,6 +94,7 @@ weapon_view = select(Weapon, item_sources.label("sources"), item_url.label("url"
 
 if __name__ == "__main__":
     create_view("armour_view", armour_view)
+    create_view("equipment_view", equipment_view)
     create_view("monster_view", monster_view)
     create_view("monster_drop_view", monster_drop_view)
     create_view("upgrade_view", upgrade_view)

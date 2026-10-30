@@ -13,6 +13,7 @@ MONSTER_MODEL_SELECTOR = "#pagecontent #monstermodel"
 CRAFT_RECIPE_SELECTOR = "#pagecontent #itemcraftrecipe"
 NAME_SELECTOR = f"{MONSTER_INFO_SELECTOR} .name"
 UPGRADE_INFO_SELECTOR = "#pagecontent #itemupgradeused"
+ITEM_UPGRADE_TEXT_SELECTOR = f"{ITEM_INFO_SELECTOR} > .orange"
 
 NOT_UPGRADE_TEXT = "not used to upgrade"
 
@@ -87,6 +88,7 @@ def _parse_item_stats(id: int, soup: BeautifulSoup) -> dict:
     reqs = {ITEM_REQ_FIELDS[k]: v for k, v in reqs.items() if k in ITEM_REQ_FIELDS}
 
     max_upgrades, requires_skill = _parse_upgrade_info(id, soup)
+    upgrade_text = _parse_item_upgrade_text(soup)
 
     if max_upgrades is not None and requires_skill is not None:
         item_type = "Upgrade"
@@ -97,6 +99,7 @@ def _parse_item_stats(id: int, soup: BeautifulSoup) -> dict:
         "name": name_el.get_text(strip=True),
         "race": race,
         "type": item_type,
+        "upgrade_text": upgrade_text,
         "max_upgrades": max_upgrades,
         "requires_skill": requires_skill,
     }
@@ -115,6 +118,15 @@ def _parse_item_stats(id: int, soup: BeautifulSoup) -> dict:
 
     log.debug("Parsed item %s: %r", id, result)
     return result
+
+
+def _parse_item_upgrade_text(soup: BeautifulSoup) -> str | None:
+    """Return the item's orange upgrade-stat text, preserving its line breaks."""
+    element = soup.select_one(ITEM_UPGRADE_TEXT_SELECTOR)
+    if element is None:
+        return None
+    text = element.get_text(separator="\n", strip=True)
+    return text or None
 
 
 def _parse_upgrade_info(id: int, soup: BeautifulSoup) -> tuple[int | None, bool | None]:
@@ -368,8 +380,10 @@ def _parse_craft_materials(id: int, soup: BeautifulSoup) -> list[dict]:
     specific_recipes = _split_on_first_repeat(id, specific_entries)
     if general_recipes is None or specific_recipes is None:
         return []
-    if general_recipes and specific_recipes and len(general_recipes) != len(
-        specific_recipes
+    if (
+        general_recipes
+        and specific_recipes
+        and len(general_recipes) != len(specific_recipes)
     ):
         log.warning("Item %s has mismatched craft recipes, ignoring.", id)
         return []

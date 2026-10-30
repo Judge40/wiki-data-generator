@@ -121,7 +121,7 @@ def test_parse_item_stats_returns_expected_dict_when_type_is_armour():
 
     result = parser.parse_stats(1, "item", item_html)
 
-    assert len(result) == 11
+    assert len(result) == 12
     assert result["id"] == 1
     assert result["name"] == "Test Armour"
     assert result["race"] == "Human"
@@ -151,7 +151,7 @@ def test_parse_item_stats_returns_expected_dict_when_type_is_weapon():
 
     result = parser.parse_stats(1, "item", item_html)
 
-    assert len(result) == 13
+    assert len(result) == 14
     assert result["id"] == 1
     assert result["name"] == "Test Weapon"
     assert result["race"] == "Human"
@@ -165,6 +165,28 @@ def test_parse_item_stats_returns_expected_dict_when_type_is_weapon():
     assert result["required_strength"] == 61
 
 
+def test_parse_item_stats_returns_expected_dict_when_type_is_accessory():
+    item_html = _env.get_template("item.html.jinja").render(
+        name="Test Accessory",
+        type="Human Accessory",
+        stats={
+            "Weight": 10,
+            "Durability": 20,
+        },
+        reqs={
+            "Wis": 30,
+        },
+        upgrades=["Magic attack + 4"],
+    )
+
+    result = parser.parse_stats(1, "item", item_html)
+
+    assert result["type"] == "Accessory"
+    assert result["durability"] == 20
+    assert result["required_wisdom"] == 30
+    assert result["upgrade_text"] == "Magic attack + 4"
+
+
 def test_parse_item_stats_returns_expected_dict_when_type_is_misc():
     item_html = _env.get_template("item.html.jinja").render(
         name="Test Misc Item",
@@ -174,7 +196,7 @@ def test_parse_item_stats_returns_expected_dict_when_type_is_misc():
 
     result = parser.parse_stats(1, "item", item_html)
 
-    assert len(result) == 7
+    assert len(result) == 8
     assert result["id"] == 1
     assert result["name"] == "Test Misc Item"
     assert result["race"] == "Human"
@@ -221,8 +243,28 @@ def test_parse_item_stats_not_including_upgrade_info_when_not_upgrade_type():
     result = parser.parse_stats(1, "item", item_html)
 
     assert result["type"] == "Material"
+    assert result["upgrade_text"] is None
     assert result["max_upgrades"] is None
     assert result["requires_skill"] is None
+
+
+def test_parse_item_stats_captures_upgrade_text_as_string():
+    item_html = _env.get_template("item.html.jinja").render(
+        name="Test Item",
+        type="Human Armour",
+        stats={"Weight": 10, "Durability": 20},
+        upgrades=[
+            "Attack + 4",
+            "DEX + 3",
+            "Modified evasion rate + 1%~2%",
+        ],
+    )
+
+    result = parser.parse_stats(1, "item", item_html)
+
+    assert result["upgrade_text"] == (
+        "Attack + 4\nDEX + 3\nModified evasion rate + 1%~2%"
+    )
 
 
 def test_parse_item_stats_includes_upgrade_info_when_skill_based_upgrade_type():

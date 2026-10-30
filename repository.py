@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session, joinedload
 
 import config
 from db_model import (
+    Accessory,
     Armour,
     Base,
     CraftItemTypeEnum,
@@ -29,6 +30,7 @@ engine = create_engine(config.DB_PATH)
 Base.metadata.create_all(engine)
 
 ITEM_TYPE_MODELS = {
+    ItemTypeEnum.ACCESSORY: Accessory,
     ItemTypeEnum.ARMOUR: Armour,
     ItemTypeEnum.AXE: Weapon,
     ItemTypeEnum.BOW: Weapon,

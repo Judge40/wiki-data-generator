@@ -1,7 +1,7 @@
 import enum
 from typing import Any, ClassVar
 
-from sqlalchemy import Enum, ForeignKey, String, case
+from sqlalchemy import Enum, ForeignKey, String, Text, case
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -144,6 +144,7 @@ class Item(Base):
         "polymorphic_on": case(
             (type.in_(WEAPON_TYPES), "WEAPON"),
             (type == ItemTypeEnum.ARMOUR, "ARMOUR"),
+            (type == ItemTypeEnum.ACCESSORY, "ACCESSORY"),
             (type == ItemTypeEnum.UPGRADE, "UPGRADE"),
             else_="ITEM",
         ),
@@ -187,37 +188,47 @@ class ItemSource(Base):
     )
 
 
-class Equipment:
-    """Mixin for fields shared by equippable item categories (armour, weapons)."""
+class Equipment(Item):
+    """Base class for equipment categories that share durability and requirements."""
 
-    durability: Mapped[int] = mapped_column(nullable=False)
+    __tablename__ = "equipment"
+
+    id: Mapped[int] = mapped_column(ForeignKey(Item.id), primary_key=True)
+    durability: Mapped[int | None] = mapped_column(nullable=True)
     required_strength: Mapped[int] = mapped_column(nullable=True)
     required_intelligence: Mapped[int] = mapped_column(nullable=True)
     required_wisdom: Mapped[int] = mapped_column(nullable=True)
     required_dexterity: Mapped[int] = mapped_column(nullable=True)
     required_constitution: Mapped[int] = mapped_column(nullable=True)
+    upgrade_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    __mapper_args__: ClassVar[dict[str, Any]] = {"polymorphic_abstract": True}
 
 
-class Armour(Item, Equipment):
+class Armour(Equipment):
     __tablename__ = "armour"
 
-    id: Mapped[int] = mapped_column(ForeignKey(Item.id), primary_key=True)
+    id: Mapped[int] = mapped_column(ForeignKey(Equipment.id), primary_key=True)
     defense_min: Mapped[int] = mapped_column(nullable=True)
     defense_max: Mapped[int] = mapped_column(nullable=True)
 
     __mapper_args__: ClassVar[dict[str, Any]] = {"polymorphic_identity": "ARMOUR"}
 
 
-class Weapon(Item, Equipment):
+class Weapon(Equipment):
     __tablename__ = "weapon"
 
-    id: Mapped[int] = mapped_column(ForeignKey(Item.id), primary_key=True)
+    id: Mapped[int] = mapped_column(ForeignKey(Equipment.id), primary_key=True)
     attack_min: Mapped[int] = mapped_column(nullable=False)
     attack_max: Mapped[int] = mapped_column(nullable=False)
     speed: Mapped[str] = mapped_column(nullable=True)
     required_skill: Mapped[int] = mapped_column(nullable=True)
 
     __mapper_args__: ClassVar[dict[str, Any]] = {"polymorphic_identity": "WEAPON"}
+
+
+class Accessory(Equipment):
+    __mapper_args__: ClassVar[dict[str, Any]] = {"polymorphic_identity": "ACCESSORY"}
 
 
 class Upgrade(Item):
